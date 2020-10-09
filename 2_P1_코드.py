@@ -247,7 +247,13 @@ class Parser:
 
 	def typeDefinition(self):
 		if token.code == Token.PARENTHESIS_OPEN:
-			pass
+			self.enumerationTypeDefinition()
+		elif token.code == Token.ARRAY:
+			self.arrayTypeDefinition()
+		elif token.code == Token.RANGE:
+			self.range()
+		else:
+			self.name()
 
 	def subprogramSpecification(self):
 		self.accept(Token.PROC, "procedure expected!")
