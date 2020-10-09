@@ -466,6 +466,7 @@ class Parser:
 		self.accept(Token.EXIT, 
 					"exit expected")
 		if self.token.code == Token.WHEN:
+			self.token = self.scanner.GetNextToken()
 			self.condition()
 		self.accept(Token.SEMICOLON, 
 					"semicolon expected")
