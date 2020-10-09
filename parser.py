@@ -1,8 +1,9 @@
 import pandas as pd
 
-
-scannerUnit = pd.Series({
+tokenizer = pd.Series({
 	"BLANK": " ",
+	"NEWLINE": "\n",
+	"TAB": "\t",
 	"COMMA":  ",",
 	"COLON":  ":",
 	"SEMICOLON":  ";",
@@ -50,7 +51,7 @@ addingOperator = pd.Series({
 multiplyingOperator = pd.Series({
 	"MUL": "*",
 	"DIV":  "/",
-	"MOD":  "mod"
+	"MOD":  " mod"	# note
 })
 
 powerOperator = pd.Series({
@@ -66,3 +67,8 @@ relationalOperator = pd.Series({
 	"GE":  ">="
 })
 
+
+scannerUnit = pd.concat((tokenizer, addingOperator, multiplyingOperator, powerOperator, relationalOperator))
+
+if __name__ == '__main__':
+	print(scannerUnit)
