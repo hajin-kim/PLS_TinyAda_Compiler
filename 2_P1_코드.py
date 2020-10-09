@@ -1,3 +1,6 @@
+from parser import *	# should be copied
+
+
 class Token:
 	"""
 	The Token class represents tokens in the language.
@@ -8,8 +11,11 @@ class Token:
 	such as an identifier name, a constant value, 
 	and a data type, as we will see in later chapters.
 	"""
-	def __init__(self):
-		print("haha")
+
+
+	def __init__(self, code, value):
+		self.code = code
+		self.value = value
 
 
 class Chario:
