@@ -1,4 +1,4 @@
-class Token(object):
+class Token:
 	"""
 	The Token class represents tokens in the language.
 	For simple syntax analysis, a token object need only 
@@ -9,7 +9,6 @@ class Token(object):
 	and a data type, as we will see in later chapters.
 	"""
 	def __init__(self):
-		super(Token).__init__()
 		print("haha")
 
 
@@ -21,8 +20,24 @@ class Chario:
 	rather than low-level text processing. 
 	The Chario class also handles the output of any error messages.
 	"""
-	def __init__(self):
-		print("haha")
+
+	def __init__(self, sourceFileName):
+		"""
+		open an Ada source file(.txt extension)
+		"""
+		self.sourceFile = open(sourceFileName, 'r')
+
+	def GetNextChar(self):
+		"""
+		Read a single character and convert it to lower case
+		"""
+		return self.sourceFile.read(1).lower()
+
+	def PrintErrorMessage(message):
+		"""
+		Print an error message with prefix "E: "
+		"""
+		print("E: " + message)
 
 
 class Scanner:
@@ -49,7 +64,14 @@ class Parser:
 
 if __name__ == "__main__":
 	token = Token()
-	chario = Chario()
+	chario = Chario("test.txt")
 	scanner = Scanner()
 	parser = Parser()
+
+	while True:
+		c = chario.GetNextChar()
+		if not c:
+			break
+		else:
+			print(c)
 
