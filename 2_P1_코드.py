@@ -344,7 +344,6 @@ class Parser:
 
 
 	def compoundStatement(self):
-		"ifStatement | loopStatement"
 		if self.token.code == Token.IF:
 			self.ifStatement()
 		else:
@@ -409,7 +408,7 @@ class Parser:
 
 
 	def actualParameterPart(self):
-		self.accept(Token.PARENTHESIS_OPEN)
+		self.accept(Token.PARENTHESIS_OPEN,"open parenthesis expected")
 		self.expression()
 		while self.token.code == Token.COMMA:
 			self.token = self.scanner.GetNextToken()
@@ -423,7 +422,7 @@ class Parser:
 	
 	def expression(self):
 		self.relation()
-		while self.token.code == Token.AND or 
+		while self.token.code == Token.AND or\
 				self.token.code == Token.OR:
 			self.token = self.scanner.GetNextToken()
 			self.relation()
