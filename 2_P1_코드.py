@@ -158,9 +158,34 @@ class Parser:
 
 
 	def factor(self):
-		self.primary():
-		if self.token.:
-			pass
+		if self.token.code == Token.NOT:
+			self.token = self.scanner.GetNextToken()
+			self.primary()
+		else:
+			self.primary()
+			if self.token.code == Token.SQUARE:
+				self.token = self.scanner.GetNextToken()
+				self.primary()
+
+
+	def primary(self):
+		if self.token.code in (Token.numericalLiteral, Token.stringLiteral):
+			self.token.GetNextToken
+		elif self.token.code == Token.identifier:
+			self.name()
+		elif self.token.code == "(":
+			self.token = self.scanner.GetNextToken()
+			self.expression()
+			self.accept(Token.PARENTHESIS_CLOSE, "\')\' expected")
+
+
+
+
+		#모든 메소드를 호출하면 GetNextToken 이 자동으로 됨 
+		#따라서 메소드를 호출한 후에는 GetNextToken 사용 금지 
+		#함수를 호출하지 않고 종료되거나 다음 토큰을 봐야 할 경우 사용 
+
+
 
 
 if __name__ == "__main__":
