@@ -101,33 +101,28 @@ class Parser:
 		self.accept(Token.END, "\'" + Token.END + "\' expected")
 		if token.code == Token.ID:
 			self.token = scanner.GetNextToken()
+		self.accept(Token.SEMI, "semicolon expected")
 
 	def declarativePart():
-		while basicDeclarationHandles.contains(token):
+		while token.code in Token.basicDeclarationHandles:
 			self.basicDeclaration()
 
 	def basicDeclaration():
 		if token.code == Token.ID:
-			numberOrObjectDeclaration()
- 			break
- 		elif token.code == Token.TYPE:
- 			typeDeclaration()
- 			break
- 		elif token.code == Token.PROC:
- 			subprogramBody()
- 			break
+			self.numberOrObjectDeclaration()
+ 		elif self.token.code == Token.TYPE:
+ 			self.typeDeclaration()
+ 		elif self.token.code == Token.PROC:
+ 			self.subprogramBody()
  		else:
- 			fatalError("error in declaration part")
+ 			self.fatalError("error in declaration part")
 
 
 	def subprogramSpecification(self):
-		"""
-
-		"""
-		if GetNextToken() != "procedure":
-			PrintErrorMessage("procedure expected!")
+		self.accept(Token.PROC, "procedure expected!")
 		self.identifier()
-		if 
+		if self.token.code == "(":	# note
+			self.formalPart()
 
 
 
