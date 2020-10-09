@@ -312,6 +312,7 @@ class Parser:
 		self.accept(Token.PARENTHESIS_CLOSE, 
 					"\'" + Token.PARENTHESIS_CLOSE + "\' expected")
 	
+
 	def arrayTypeDefinition(self):
 		self.accept(Token.ARRAY, 
 					"\'" + Token.ARRAY + "\' expected")
@@ -329,26 +330,31 @@ class Parser:
 
 
 	def subprogramSpecification(self):
-		self.accept(Token.PROC, "procedure expected!")
-		self.accept(Token.ID, "identifier expected")
+		self.accept(Token.PROC, 
+					"procedure expected")
+		self.accept(Token.ID, 
+					"identifier expected")
 		if self.token.code == "(":	# note
 			self.formalPart()
 
 
 	def formalPart(self):
-		self.accept(Token.PARENTHESIS_OPEN, "\'" + Token.PARENTHESIS_OPEN + "\' expected")
+		self.accept(Token.PARENTHESIS_OPEN, 
+					"\'" + Token.PARENTHESIS_OPEN + "\' expected")
 		self.parameterSpecification()
 		while self.token.code == Token.SEMICOLON:
 			self.token = self.scanner.GetNextToken()
 			self.parameterSpecification()
-		self.accept(Token.PARENTHESIS_CLOSE, "\'" + Token.PARENTHESIS_CLOSE + "\' expected")
+		self.accept(Token.PARENTHESIS_CLOSE, 
+					"\'" + Token.PARENTHESIS_CLOSE + "\' expected")
 
 
 	def parameterSpecification(self):
 		self.identifierList()
 		self.accept(Token.COLON, "\'" + Token.COLON + "\' expected")
 		self.mode()
-		self.name()
+		self.name()	# force <type>name
+
 	
 	def mode(self):
 		if self.token.code == "IN":
