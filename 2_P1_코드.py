@@ -117,6 +117,36 @@ class Parser:
  		else:
  			self.fatalError("error in declaration part")
 
+ 	def objectDeclaration():
+ 		self.identifierList()
+ 		self.accept(Token.COLON,"\'" + Token.COLON + "\' expected")
+ 		self.typeDeclaration()
+ 		self.accept(Token.SEMICOLON,"\'" + Token.SEMICOLON + "\' expected")
+
+ 	def numberDeclaration();
+ 		self.identifierList()
+ 		self.accept(Token.COLON,"\'" + Token.COLON + "\' expected")
+ 		self.accept("constant","\'" + "constant" + "\' expected")
+ 		self.accept(Token.COLON_EQ,"\'" + Token.COLON_EQ + "\' expected")
+ 		self.expression()
+ 		self.accept(Token.SEMICOLON,"\'" + Token.SEMICOLON + "\' expected")
+
+ 	def identifierList():
+ 		self.identifier()
+ 		while self.token.code == Token.COMMA:
+ 			self.token = self.scanner.GetNextToken()
+			self.identifier()
+
+	def typeDeclaration():
+		self.accept(Token.TYPE,"\'" + Token.TYPE + "\' expected")
+		self.identifier()
+		self.accept(Token.IS, "\'" + Token.IS + "\' expected")
+		self.typeDefinition()
+		self.accept(Token.SEMICOLON,"\'" + Token.SEMICOLON + "\' expected")
+
+	def typeDefinition():
+		if token.code == Token.PARENTHESIS_OPEN:
+			pass
 
 	def subprogramSpecification(self):
 		self.accept(Token.PROC, "procedure expected!")
