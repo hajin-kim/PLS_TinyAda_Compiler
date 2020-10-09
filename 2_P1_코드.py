@@ -209,7 +209,7 @@ class Parser:
 			self.basicDeclaration()
 
 	def basicDeclaration(self):
-		if token.code == Token.ID:
+		if self.token.code == Token.ID:
 			self.numberOrObjectDeclaration()
  		elif self.token.code == Token.TYPE:
  			self.typeDeclaration()
@@ -218,18 +218,22 @@ class Parser:
  		else:
  			self.fatalError("error in declaration part")
 
- 	def objectDeclaration(self):
+ 	def numberOrObjectDeclaration(self):
  		self.identifierList()
  		self.accept(Token.COLON,"\'" + Token.COLON + "\' expected")
- 		self.typeDeclaration()
+ 		if self.token.code == Token.CONSTANT:
+ 			self.numberDeclaration()
+ 		else:
+ 			self.objectDeclaration()
+
+ 	def objectDeclaration(self):
+ 		self.typeDefinition()
  		self.accept(Token.SEMICOLON,"\'" + Token.SEMICOLON + "\' expected")
 
  	def numberDeclaration(self);
- 		self.identifierList()
- 		self.accept(Token.COLON,"\'" + Token.COLON + "\' expected")
- 		self.accept("constant","\'" + "constant" + "\' expected")
+ 		self.accept(Token.CONSTANT,"\'" + "constant" + "\' expected")
  		self.accept(Token.COLON_EQ,"\'" + Token.COLON_EQ + "\' expected")
- 		self.expression()
+ 		self.expression()	# force <static>expression
  		self.accept(Token.SEMICOLON,"\'" + Token.SEMICOLON + "\' expected")
 
  	def identifierList(self):
@@ -256,7 +260,7 @@ class Parser:
 			self.name()
 
 	def range(self):
-		self.accept(Token.IS, "\'" + Token.IS + "\' expected")
+		self.accept(Token.RANGE, "\'" + Token.IS + "\' expected")
 		self.simpleExpression()
 		self.accept(Token.DOT_DOT, "\'" + Token.DOT_DOT + "\' expected")
 		self.simpleExpression()
