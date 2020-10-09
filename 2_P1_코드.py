@@ -218,6 +218,36 @@ class Parser:
  		else:
  			self.fatalError("error in declaration part")
 
+ 	def objectDeclaration():
+ 		self.identifierList()
+ 		self.accept(Token.COLON,"\'" + Token.COLON + "\' expected")
+ 		self.typeDeclaration()
+ 		self.accept(Token.SEMICOLON,"\'" + Token.SEMICOLON + "\' expected")
+
+ 	def numberDeclaration();
+ 		self.identifierList()
+ 		self.accept(Token.COLON,"\'" + Token.COLON + "\' expected")
+ 		self.accept("constant","\'" + "constant" + "\' expected")
+ 		self.accept(Token.COLON_EQ,"\'" + Token.COLON_EQ + "\' expected")
+ 		self.expression()
+ 		self.accept(Token.SEMICOLON,"\'" + Token.SEMICOLON + "\' expected")
+
+ 	def identifierList():
+ 		self.identifier()
+ 		while self.token.code == Token.COMMA:
+ 			self.token = self.scanner.GetNextToken()
+			self.identifier()
+
+	def typeDeclaration():
+		self.accept(Token.TYPE,"\'" + Token.TYPE + "\' expected")
+		self.identifier()
+		self.accept(Token.IS, "\'" + Token.IS + "\' expected")
+		self.typeDefinition()
+		self.accept(Token.SEMICOLON,"\'" + Token.SEMICOLON + "\' expected")
+
+	def typeDefinition():
+		if token.code == Token.PARENTHESIS_OPEN:
+			pass
 
 	def subprogramSpecification(self):
 		self.accept(Token.PROC, "procedure expected!")
@@ -259,9 +289,34 @@ class Parser:
 
 
 	def factor(self):
-		self.primary():
-		if self.token.:
-			pass
+		if self.token.code == Token.NOT:
+			self.token = self.scanner.GetNextToken()
+			self.primary()
+		else:
+			self.primary()
+			if self.token.code == Token.SQUARE:
+				self.token = self.scanner.GetNextToken()
+				self.primary()
+
+
+	def primary(self):
+		if self.token.code in (Token.numericalLiteral, Token.stringLiteral):
+			self.token.GetNextToken
+		elif self.token.code == Token.identifier:
+			self.name()
+		elif self.token.code == "(":
+			self.token = self.scanner.GetNextToken()
+			self.expression()
+			self.accept(Token.PARENTHESIS_CLOSE, "\')\' expected")
+
+
+
+
+		#모든 메소드를 호출하면 GetNextToken 이 자동으로 됨 
+		#따라서 메소드를 호출한 후에는 GetNextToken 사용 금지 
+		#함수를 호출하지 않고 종료되거나 다음 토큰을 봐야 할 경우 사용 
+
+
 
 
 if __name__ == "__main__":
