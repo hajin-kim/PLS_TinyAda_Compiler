@@ -94,19 +94,31 @@ class Parser:
 		Check whole subprogram is match with EBNF grammar for TinyAda
 		"""
 		self.subprogramSpecification()
-
-		if token != "is":
-			PrintErrorMessage("is expected!")
+		self.accept(Token.IS, "\'" + Token.IS + "\' expected")
 		self.declarativePart()
-		if GetNextToken() != "begin":
-			PrintErrorMessage("begin expected!")
+		self.accept(Token.BEGIN, "\'" + Token.BEGIN + "\' expected")
 		self.sequenceOfStatements()
-		if GetNextToken() != "end":
-			PrintErrorMessage("end expected!")
-		if PeekNextToken() != ";":
-			self.ProcedureIdentifier()
-		if GetNextToken() != ";":
-			PrintErrorMessage("; expected!")
+		self.accept(Token.END, "\'" + Token.END + "\' expected")
+		if token.code == Token.ID:
+			self.token = scanner.GetNextToken()
+
+	def declarativePart():
+		while basicDeclarationHandles.contains(token):
+			self.basicDeclaration()
+
+	def basicDeclaration():
+		if token.code == Token.ID:
+			numberOrObjectDeclaration()
+ 			break
+ 		elif token.code == Token.TYPE:
+ 			typeDeclaration()
+ 			break
+ 		elif token.code == Token.PROC:
+ 			subprogramBody()
+ 			break
+ 		else:
+ 			fatalError("error in declaration part")
+
 
 	def subprogramSpecification(self):
 		"""
