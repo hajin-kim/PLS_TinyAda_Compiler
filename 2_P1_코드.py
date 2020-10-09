@@ -404,69 +404,89 @@ class Parser:
 
 
 	def nullStatement(self):
-		self.accept(Token.NULL, "null expected")
-		self.accept(Token.SEMICOLON, "semicolon expected")
+		self.accept(Token.NULL, 
+					"null expected")
+		self.accept(Token.SEMICOLON, 
+					"semicolon expected")
 
 
 	def assignmentStatement(self):
-		self.accept(Token.COLON_EQ, ":= expected")
+		self.accept(Token.COLON_EQ, 
+					":= expected")
 		self.expression()
-		self.accept(Token.SEMICOLON, "semicolon expected")
+		self.accept(Token.SEMICOLON, 
+					"semicolon expected")
 
 
 	def ifStatement(self):
-		self.accept(Token.IF, "if expected")
+		self.accept(Token.IF, 
+					"if expected")
 		self.condition()
-		self.accept(Token.THEN, "then expected")
+		self.accept(Token.THEN, 
+					"then expected")
 		self.sequenceOfStatements()
 		while self.token.code == Token.ELSIF:
 			self.token = self.scanner.GetNextToken()
 			self.condition()
-			self.accept(Token.THEN, "then expected")
+			self.accept(Token.THEN, 
+						"then expected")
 			self.sequenceOfStatements()
 		if self.token.code == Token.ELSE:
 			self.token = self.scanner.GetNextToken()
 			self.sequenceOfStatements()
-		self.accept(Token.END, "end expected")
-		self.accept(Token.IF, "if expected")
-		self.accept(Token.SEMICOLON, "semicolon expected")
+		self.accept(Token.END, 
+					"end expected")
+		self.accept(Token.IF, 
+					"if expected")
+		self.accept(Token.SEMICOLON, 
+					"semicolon expected")
 
 
 	def loopStatement(self):
 		if self.token.code == Token.WHILE:
 			self.iterationScheme()
-		self.accept(Token.LOOP, "loop expected")
+		self.accept(Token.LOOP, 
+					"loop expected")
 		self.sequenceOfStatements()
-		self.accept(Token.END, "end expected")
-		self.accept(Token.LOOP, "loop expected")
-		self.accept(Token.SEMICOLON, "semicolon expected")
+		self.accept(Token.END, 
+					"end expected")
+		self.accept(Token.LOOP, 
+					"loop expected")
+		self.accept(Token.SEMICOLON, 
+					"semicolon expected")
 
 
 	def iterationScheme(self):
-		self.accept(Token.WHILE, "while expected")
+		self.accept(Token.WHILE, 
+					"while expected")
 		self.condition()
 
 
 	def exitStatement(self):
-		self.accept(Token.EXIT, "exit expected")
+		self.accept(Token.EXIT, 
+					"exit expected")
 		if self.token.code == Token.WHEN:
 			self.condition()
-		self.accept(Token.SEMICOLON, "semicolon expected")
+		self.accept(Token.SEMICOLON, 
+					"semicolon expected")
 
 
 	def procedureCallStatement(self):
 		if self.token.code == Token.PARENTHESIS_OPEN:
 			self.actualParameterPart()
-		self.accept(Token.SEMICOLON, "semicolon expected")
+		self.accept(Token.SEMICOLON, 
+					"semicolon expected")
 
 
 	def actualParameterPart(self):
-		self.accept(Token.PARENTHESIS_OPEN,"open parenthesis expected")
+		self.accept(Token.PARENTHESIS_OPEN, 
+					"open parenthesis expected")
 		self.expression()
 		while self.token.code == Token.COMMA:
 			self.token = self.scanner.GetNextToken()
 			self.expression()
-		self.accept(Token.PARENTHESIS_CLOSE, "close parenthesis expected")
+		self.accept(Token.PARENTHESIS_CLOSE, 
+					"close parenthesis expected")
 
 
 	def condition(self):
@@ -505,6 +525,7 @@ class Parser:
 
 
 	def factor(self):
+		# not
 		if self.token.code == Token.NOT:
 			self.token = self.scanner.GetNextToken()
 			self.primary()
@@ -517,28 +538,34 @@ class Parser:
 
 	def primary(self):
 		if self.token.code in (Token.numericalLiteral, Token.stringLiteral):
-			self.token.GetNextToken
-		elif self.token.code == Token.identifier:
+			self.token.GetNextToken()
+		elif self.token.code == Token.ID:
 			self.name()
-		elif self.token.code == "(":
+		elif self.token.code == Token.PARENTHESIS_OPEN:
 			self.token = self.scanner.GetNextToken()
 			self.expression()
-			self.accept(Token.PARENTHESIS_CLOSE, "\')\' expected")
+			self.accept(Token.PARENTHESIS_CLOSE, 
+						"\')\' expected")
+		else:
+			self.fatalError("error in expression")
 
 
 	def name(self):
-		self.accept(Token.ID)
-		if self.token.code == "(":	# indexedComponent
+		self.accept(Token.ID, 
+					"identifier expected")
+		if self.token.code == Token.PARENTHESIS_OPEN:	# indexedComponent
 			self.indexedComponent()
 
 
 	def indexedComponent(self):
-		self.accept(Token.PARENTHESIS_OPEN, "\'(\' expected")
+		self.accept(Token.PARENTHESIS_OPEN, 
+					"\'(\' expected")
 		self.expression()
 		while self.token.code == Token.COMMA:
-			self.accept(Token.COMMA, "\'(\' expected")
+			self.token = self.scanner.GetNextToken()
 			self.expression()
-		self.accept(Token.PARENTHESIS_CLOSE, "\')\' expected")
+		self.accept(Token.PARENTHESIS_CLOSE, 
+					"\')\' expected")
 
 
 		#모든 메소드를 호출하면 GetNextToken 이 자동으로 됨 
