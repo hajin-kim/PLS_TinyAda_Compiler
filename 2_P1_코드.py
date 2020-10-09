@@ -1,4 +1,4 @@
-from parser import *	# should be copied
+from consts import *	# should be copied
 
 
 class Token:
@@ -101,23 +101,21 @@ class Parser:
 		self.accept(Token.END, "\'" + Token.END + "\' expected")
 		if token.code == Token.ID:
 			self.token = scanner.GetNextToken()
+		self.accept(Token.SEMI, "semicolon expected")
 
 	def declarativePart():
-		while basicDeclarationHandles.contains(token):
+		while token.code in Token.basicDeclarationHandles:
 			self.basicDeclaration()
 
 	def basicDeclaration():
 		if token.code == Token.ID:
-			numberOrObjectDeclaration()
- 			break
- 		elif token.code == Token.TYPE:
- 			typeDeclaration()
- 			break
- 		elif token.code == Token.PROC:
- 			subprogramBody()
- 			break
+			self.numberOrObjectDeclaration()
+ 		elif self.token.code == Token.TYPE:
+ 			self.typeDeclaration()
+ 		elif self.token.code == Token.PROC:
+ 			self.subprogramBody()
  		else:
- 			fatalError("error in declaration part")
+ 			self.fatalError("error in declaration part")
 
  	def objectDeclaration():
  		self.identifierList()
@@ -151,13 +149,10 @@ class Parser:
 			pass
 
 	def subprogramSpecification(self):
-		"""
-
-		"""
-		if GetNextToken() != "procedure":
-			PrintErrorMessage("procedure expected!")
+		self.accept(Token.PROC, "procedure expected!")
 		self.identifier()
-		if 
+		if self.token.code == "(":	# note
+			self.formalPart()
 
 
 
@@ -185,6 +180,17 @@ class Parser:
 			self.token = self.scanner.GetNextToken()
 			self.term();
 
+	def term(self):
+		self.factor()
+		while self.token in Token.multiplyingOperator:
+			self.token = self.scanner.GetNextToken()
+			self.factor()
+
+
+	def factor(self):
+		self.primary():
+		if self.token.:
+			pass
 
 
 if __name__ == "__main__":

@@ -70,5 +70,8 @@ relationalOperator = pd.Series({
 
 scannerUnit = pd.concat((tokenizer, addingOperator, multiplyingOperator, powerOperator, relationalOperator))
 
+tokenCode = pd.concat((tokenizer, reserved, basicDeclarationHandles, statementHandles, addingOperator, multiplyingOperator, powerOperator, relationalOperator)).unique()
+
 if __name__ == '__main__':
 	print(scannerUnit)
+	print(tokenCode)
