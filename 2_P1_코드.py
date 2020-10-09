@@ -233,14 +233,14 @@ class Parser:
  		self.accept(Token.SEMICOLON,"\'" + Token.SEMICOLON + "\' expected")
 
  	def identifierList(self):
- 		self.identifier()
+ 		self.accept(Token.ID, "identifier expected")
  		while self.token.code == Token.COMMA:
  			self.token = self.scanner.GetNextToken()
-			self.identifier()
+			self.accept(Token.ID, "identifier expected")
 
 	def typeDeclaration(self):
 		self.accept(Token.TYPE,"\'" + Token.TYPE + "\' expected")
-		self.identifier()
+		self.accept(Token.ID, "identifier expected")
 		self.accept(Token.IS, "\'" + Token.IS + "\' expected")
 		self.typeDefinition()
 		self.accept(Token.SEMICOLON,"\'" + Token.SEMICOLON + "\' expected")
@@ -257,7 +257,7 @@ class Parser:
 
 	def subprogramSpecification(self):
 		self.accept(Token.PROC, "procedure expected!")
-		self.identifier()
+		self.accept(Token.ID, "identifier expected")
 		if self.token.code == "(":	# note
 			self.formalPart()
 
