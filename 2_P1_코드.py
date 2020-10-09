@@ -1,5 +1,4 @@
-from constant import *	# should be copied
-import pandas as pd
+from consts import *	# should be copied
 
 
 class Token:
@@ -196,29 +195,73 @@ class Parser:
 		Check whole subprogram is match with EBNF grammar for TinyAda
 		"""
 		self.subprogramSpecification()
-
-		if token != "is":
-			PrintErrorMessage("is expected!")
+		self.accept(Token.IS, "\'" + Token.IS + "\' expected")
 		self.declarativePart()
-		if GetNextToken() != "begin":
-			PrintErrorMessage("begin expected!")
+		self.accept(Token.BEGIN, "\'" + Token.BEGIN + "\' expected")
 		self.sequenceOfStatements()
-		if GetNextToken() != "end":
-			PrintErrorMessage("end expected!")
-		if PeekNextToken() != ";":
-			self.ProcedureIdentifier()
-		if GetNextToken() != ";":
-			PrintErrorMessage("; expected!")
+		self.accept(Token.END, "\'" + Token.END + "\' expected")
+		if token.code == Token.ID:
+			self.token = scanner.GetNextToken()
+		self.accept(Token.SEMI, "semicolon expected")
+
+	def declarativePart():
+		while token.code in Token.basicDeclarationHandles:
+			self.basicDeclaration()
+
+	def basicDeclaration():
+		if token.code == Token.ID:
+			self.numberOrObjectDeclaration()
+ 		elif self.token.code == Token.TYPE:
+ 			self.typeDeclaration()
+ 		elif self.token.code == Token.PROC:
+ 			self.subprogramBody()
+ 		else:
+ 			self.fatalError("error in declaration part")
+
 
 	def subprogramSpecification(self):
-		"""
-
-		"""
-		if GetNextToken() != "procedure":
-			PrintErrorMessage("procedure expected!")
+		self.accept(Token.PROC, "procedure expected!")
 		self.identifier()
-		# if 
+		if self.token.code == "(":	# note
+			self.formalPart()
 
+
+
+	
+	def expression(self):
+		self.relation()
+		while self.token.code == Token.AND or 
+				self.token.code == Token.OR:
+			self.token = self.scanner.GetNextToken()
+			self.relation()
+
+
+	def relation(self):
+		self.simpleExpression()
+		if self.token.code in Token.relationalOperator:
+			self.token = self.scanner.GetNextToken()
+			self.simpleExpression()
+
+
+	def simpleExpression(self):
+		if self.token.code in Token.addingOperator:
+			self.token = self.scanner.GetNextToken()
+		self.term()
+		while self.token.code in Token.addingOperator:
+			self.token = self.scanner.GetNextToken()
+			self.term();
+
+	def term(self):
+		self.factor()
+		while self.token in Token.multiplyingOperator:
+			self.token = self.scanner.GetNextToken()
+			self.factor()
+
+
+	def factor(self):
+		self.primary():
+		if self.token.:
+			pass
 
 
 if __name__ == "__main__":
