@@ -27,7 +27,8 @@ reserved = pd.Series({
 	"THEN":  "then",
 	"ELSIF":  "elsif",
 	"ELSE":  "else",
-	"WHEN":  "when"
+	"WHEN":  "when",
+	"CONSTANT":  "constant"
 })
 
 basicDeclarationHandles = pd.Series({
