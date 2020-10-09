@@ -1,4 +1,5 @@
-from parser import *	# should be copied
+from constant import *	# should be copied
+import pandas as pd
 
 
 class Token:
@@ -31,15 +32,29 @@ class Chario:
 		"""
 		open an Ada source file(.txt extension)
 		"""
-		self.sourceFile = open(sourceFileName, 'r')
+		self.sourceFile = open(sourceFileName, 'rb')
 
 	def GetNextChar(self):
 		"""
 		Read a single character and convert it to lower case
 		"""
-		return self.sourceFile.read(1).lower()
+		raw = self.sourceFile.read(1)
+		if raw == b'':
+			return "EOF"
+		else:
+			return str(raw)[2:3].lower()
 
-	def PrintErrorMessage(message):
+	def PeekNextChar(self):
+		"""
+		Read a single character without changing file pointer
+		"""
+		rtn = self.GetNextChar()
+		if rtn != "EOF":
+			self.sourceFile.seek(-1, 1)
+
+		return rtn
+
+	def PrintErrorMessage(self, message):
 		"""
 		Print an error message with prefix "E: "
 		"""
@@ -52,8 +67,95 @@ class Scanner:
 	in a stream of characters and returns these tokens to the parser. 
 	The Scanner class also detects any lexical errors.
 	"""
-	def __init__(self):
-		print("haha")
+	def __init__(self, chario):
+		self.chario = chario
+
+	def PeekNextToken(self):
+		return None
+
+	def IntegerToken(self):
+		"""
+		Scans an integer value, which is a series of digits
+		"""
+		# print("scanning an integer token...")
+		result = ""
+		while self.chario.PeekNextChar().isdigit():
+			result += self.chario.GetNextChar()
+
+		return "int: " + result
+
+	def AlphabeticToken(self):
+		"""
+		Scans either an identifier(e.g. variable name) or a reserved word(e.g. is, null).
+		"""
+		# print("scanning an alphabetic token...")
+		# all possible alphabetic keywords(e.g. is, null, mod)
+		reservedWords = pd.concat((reserved, basicDeclarationHandles, statementHandles, modOperator)).values
+
+		# list of characters that cannot exist right after an identifier or a reserved word
+		delimiters = (" ", "\n", "\r", "\t", "\\", ",", ":", "<", ">", "=", ";", "+", "-", "*", "/", "(", ")", "EOF")
+
+		# scan the token
+		result = ""
+		while self.chario.PeekNextChar() not in delimiters:
+			# print(self.chario.PeekNextChar() + " was not a delimiter")
+			result += self.chario.GetNextChar()
+
+		# print(self.chario.PeekNextChar() + " was a delimiter!")
+	
+		# return the result as either reserved word itself or an identifier
+		if result in reservedWords:
+			return result
+		else:
+			# return "id"
+			return "id: " + result
+
+	def OperatorToken(self):
+		"""
+		Scans an operator symbol from chario(e.g. +, :=).
+		If an unexpected character is detected, RuntimeError will be raised.
+		"""
+		# print("scanning an operator token...")
+		operators = pd.concat((addingOperator, multiplyingOperator, powerOperator, relationalOperator, tokenizer)).values
+		validOperators = ("+", "-", "*", "/", "=", ":", ".", "(", ")", ",", "<", ">")
+
+		if self.chario.PeekNextChar() == ";":
+			return self.chario.GetNextChar()
+
+		result = ""
+		while self.chario.PeekNextChar() in validOperators:
+			result += self.chario.GetNextChar()
+		
+		if result in operators:
+			return result
+		else:
+			self.chario.PrintErrorMessage("Unexpected symbol '" + result + "'")
+
+	def GetNextToken(self):
+		"""
+		Read characters from chario and return the first token found
+		"""
+		# print("scanning a token...")
+		# remove space and newline
+		ignoredCharacters = (" ", "\n", "\r", "\t", "\\")
+		while True:
+			nextChar = self.chario.PeekNextChar()
+			# print("should I remove "+ nextChar+"?")
+			if nextChar == "EOF":
+				return "EOF"
+			
+			if nextChar in ignoredCharacters:
+				self.chario.GetNextChar()
+			else:
+				break
+
+		nextChar = self.chario.PeekNextChar()
+		if nextChar.isalpha():
+			return self.AlphabeticToken()
+		elif nextChar.isdigit():
+			return self.IntegerToken()
+		else:
+			return self.OperatorToken()
 
 
 class Parser:
@@ -85,7 +187,7 @@ class Parser:
 
 
 	def fatalError(self, error_messager):
-		self.chario.PrintErrorMessage(error_messager);
+		self.chario.PrintErrorMessage(error_messager)
 		raise RuntimeError("Fatal error")
 
 
@@ -115,19 +217,45 @@ class Parser:
 		if GetNextToken() != "procedure":
 			PrintErrorMessage("procedure expected!")
 		self.identifier()
-		if 
+		# if 
+
 
 
 if __name__ == "__main__":
-	token = Token()
 	chario = Chario("test.txt")
-	scanner = Scanner()
-	parser = Parser()
+	scanner = Scanner(chario)
+
+	# while True:
+	# 	peek = chario.PeekNextChar()
+	# 	print("Peek: " + peek)
+	# 	if peek != "EOF":
+	# 		print(chario.GetNextChar())
+	# 	else:
+	# 		break
+	# while chario.PeekNextChar() not in ("EOF"):
+		# print(chario.GetNextChar())
+
+	# while True:
+		# print(chario.PeekNextChar())
+		# chario.GetNextChar()
+
+	# print(scanner.GetNextToken())
 
 	while True:
-		c = chario.GetNextChar()
-		if not c:
+		token = scanner.GetNextToken()
+		print("token: " + token)
+		if token == "EOF":
 			break
-		else:
-			print(c)
+
+# 	token = Token()
+# 	chario = Chario("test.txt")
+# 	scanner = Scanner()
+# 	parser = Parser()
+
+# 	while True:
+# 		c = chario.GetNextChar()
+# 		if not c:
+# 			break
+# 		else:
+# 			print(c)
 

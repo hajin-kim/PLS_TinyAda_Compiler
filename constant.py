@@ -1,9 +1,9 @@
 import pandas as pd
 
 tokenizer = pd.Series({
-	"BLANK": " ",
-	"NEWLINE": "\n",
-	"TAB": "\t",
+	#"BLANK": " ",
+	#"NEWLINE": "\n",
+	#"TAB": "\t",
 	"COMMA":  ",",
 	"COLON":  ":",
 	"SEMICOLON":  ";",
@@ -50,7 +50,10 @@ addingOperator = pd.Series({
 
 multiplyingOperator = pd.Series({
 	"MUL": "*",
-	"DIV":  "/",
+	"DIV":  "/"
+})
+
+modOperator = pd.Series({
 	"MOD":  " mod"	# note
 })
 
