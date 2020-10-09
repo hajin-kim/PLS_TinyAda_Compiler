@@ -1,4 +1,4 @@
-from parser import *	# should be copied
+from consts import *	# should be copied
 
 
 class Token:
@@ -150,6 +150,17 @@ class Parser:
 			self.token = self.scanner.GetNextToken()
 			self.term();
 
+	def term(self):
+		self.factor()
+		while self.token in Token.multiplyingOperator:
+			self.token = self.scanner.GetNextToken()
+			self.factor()
+
+
+	def factor(self):
+		self.primary():
+		if self.token.:
+			pass
 
 
 if __name__ == "__main__":
