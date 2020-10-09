@@ -256,6 +256,27 @@ class Parser:
 			self.formalPart()
 
 
+
+	def compoundStatement(self):
+		"ifStatement | loopStatement"
+		if self.token.code == Token.IF:
+			self.ifStatement()
+		else:
+			self.loopStatement()
+
+
+	def nullStatement(self):
+		self.accept(Token.NULL, "null expected")
+		self.accept(Token.SEMICOLON, "semicolon expected")
+
+
+	def assignmentStatement(self):
+		self.name()	# force <variable>name
+		self.accept(Token.COLON_EQ, ":= expected")
+		self.expression()
+		self.accept(Token.SEMICOLON, "semicolon expected")
+
+
 	def ifStatement(self):
 		self.accept(Token.IF, "if expected")
 		self.condition()
