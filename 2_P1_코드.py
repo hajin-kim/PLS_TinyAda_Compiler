@@ -257,6 +257,47 @@ class Parser:
 
 
 
+	def loopStatement(self):
+		if self.token.code == Token.WHILE:
+			self.iterationScheme()
+		self.accept(Token.LOOP, "loop expected")
+		self.sequenceOfStatements()
+		self.accept(Token.END, "end expected")
+		self.accept(Token.LOOP, "loop expected")
+		self.accept(Token.SEMICOLON, "semicolon expected")
+
+
+	def iterationScheme(self):
+		self.accept(Token.WHILE, "while expected")
+		self.condition()
+
+
+	def exitStatement(self):
+		self.accept(Token.EXIT, "exit expected")
+		if self.token.code == Token.WHEN:
+			self.condition()
+		self.accept(Token.SEMICOLON, "semicolon expected")
+
+
+	def procedureCallStatement(self):
+		self.name() # force <procedure>name
+		if self.token.code == Token.PARENTHESIS_OPEN:
+			self.actualParameterPart()
+		self.accept(Token.SEMICOLON, "semicolon expected")
+
+
+	def actualParameterPart(self):
+		self.accept(Token.PARENTHESIS_OPEN)
+		self.expression()
+		while self.token.code == Token.COMMA:
+			self.token = self.scanner.GetNextToken()
+			self.expression()
+		self.accept(Token.PARENTHESIS_CLOSE, "close parenthesis expected")
+
+
+	def condition(self):
+		self.expression() # force <boolean>
+
 	
 	def expression(self):
 		self.relation()
@@ -280,6 +321,7 @@ class Parser:
 		while self.token.code in Token.addingOperator:
 			self.token = self.scanner.GetNextToken()
 			self.term();
+
 
 	def term(self):
 		self.factor()
@@ -310,6 +352,19 @@ class Parser:
 			self.accept(Token.PARENTHESIS_CLOSE, "\')\' expected")
 
 
+	def name(self):
+		self.accept(Token.ID)
+		if self.token.code == "(":	# indexedComponent
+			self.indexedComponent()
+
+
+	def indexedComponent(self):
+		self.accept(Token.PARENTHESIS_OPEN, "\'(\' expected")
+		self.expression()
+		while self.token.code == Token.COMMA:
+			self.accept(Token.COMMA, "\'(\' expected")
+			self.expression()
+		self.accept(Token.PARENTHESIS_CLOSE, "\')\' expected")
 
 
 		#모든 메소드를 호출하면 GetNextToken 이 자동으로 됨 

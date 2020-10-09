@@ -45,7 +45,7 @@ statementHandles = pd.Series({
 
 addingOperator = pd.Series({
 	"PLUS": "+",
-	"MINUS":  "-"
+	"MINUS": "-"
 })
 
 multiplyingOperator = pd.Series({
@@ -53,21 +53,24 @@ multiplyingOperator = pd.Series({
 	"DIV":  "/"
 })
 
-modOperator = pd.Series({
-	"MOD":  " mod"	# note
-})
-
-powerOperator = pd.Series({
-	"SQUARE": "**",
+factorOperator = pd.Series({
+	"SQUARE": "**"
 })
 
 relationalOperator = pd.Series({
 	"EQ": "=" ,
-	"NE":  "/=" ,
-	"LT":  "<" ,
-	"LE":  "<=" ,
-	"GT":  ">" ,
-	"GE":  ">="
+	"NE": "/=" ,
+	"LT": "<" ,
+	"LE": "<=" ,
+	"GT": ">" ,
+	"GE": ">="
+})
+
+stringOperator = pd.Series({
+	"MOD": "mod",	# note
+	"NOT": "not",
+	"AND": "and",
+	"OR": "or"
 })
 
 
