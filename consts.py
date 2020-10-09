@@ -13,11 +13,13 @@ tokenizer = pd.Series({
 	"COLON_EQ":  ":="
 })
 
+EOF = "EOF"
+
 reserved = pd.Series({
 	"IS": "is",
 	"BEGIN":  "begin",
 	"END":  "end",
-	"RANGE_SPACE":  "range ",
+	"RANGE":  "range",
 	"ARRAY":  "array",
 	"OF":  "of",
 	"IN":  "in",
