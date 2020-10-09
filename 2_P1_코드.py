@@ -58,8 +58,58 @@ class Parser:
 	the parser halts execution upon encountering 
 	the first syntax error in a source program.
 	"""
-	def __init__(self):
-		print("haha")
+	def __init__(self, chario, scanner):
+		self.chario = chario
+		self.scanner = scanner
+		# should implement handles
+		#self.initHandles()
+		self.token = scanner.GetNextToken()
+
+
+	def parse(self):
+		self.subprogramBody()
+		# accept EOF: check if extra symbols after logical end of program exist
+		#self.accept(Token.EOF)
+
+
+	def accept(self, expected, error_message):
+		if self.token.code != expected:
+			self.fatalError(error_message)
+		self.token = self.scanner.GetNextToken()
+
+
+	def fatalError(self, error_messager):
+		self.chario.PrintErrorMessage(error_messager);
+		raise RuntimeError("Fatal error")
+
+
+	def subprogramBody(self):
+		"""
+		Check whole subprogram is match with EBNF grammar for TinyAda
+		"""
+		self.subprogramSpecification()
+
+		if token != "is":
+			PrintErrorMessage("is expected!")
+		self.declarativePart()
+		if GetNextToken() != "begin":
+			PrintErrorMessage("begin expected!")
+		self.sequenceOfStatements()
+		if GetNextToken() != "end":
+			PrintErrorMessage("end expected!")
+		if PeekNextToken() != ";":
+			self.ProcedureIdentifier()
+		if GetNextToken() != ";":
+			PrintErrorMessage("; expected!")
+
+	def subprogramSpecification(self):
+		"""
+
+		"""
+		if GetNextToken() != "procedure":
+			PrintErrorMessage("procedure expected!")
+		self.identifier()
+		if 
 
 
 if __name__ == "__main__":
