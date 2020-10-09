@@ -256,6 +256,23 @@ class Parser:
 			self.formalPart()
 
 
+	def ifStatement(self):
+		self.accept(Token.IF, "if expected")
+		self.condition()
+		self.accept(Token.THEN, "then expected")
+		self.sequenceOfStatements()
+		while self.token.code == Token.ELSIF:
+			self.token = self.scanner.GetNextToken()
+			self.condition()
+			self.accept(Token.THEN, "then expected")
+			self.sequenceOfStatements()
+		if self.token.code == Token.ELSE:
+			self.token = self.scanner.GetNextToken()
+			self.sequenceOfStatements()
+		self.accept(Token.END, "end expected")
+		self.accept(Token.IF, "if expected")
+		self.accept(Token.SEMICOLON, "semicolon expected")
+
 
 	def loopStatement(self):
 		if self.token.code == Token.WHILE:
