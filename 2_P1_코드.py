@@ -255,13 +255,59 @@ class Parser:
 		else:
 			self.name()
 
+	def range(self):
+		self.accept(Token.IS, "\'" + Token.IS + "\' expected")
+		self.simpleExpression()
+		self.accept(Token.DOT_DOT, "\'" + Token.DOT_DOT + "\' expected")
+		self.simpleExpression()
+
+	def index(self):
+		if token.code == Token.RANGE:
+			self.range()
+		else:
+			self.name()
+
+	def enumerationTypeDefinition(self):
+		self.accept(Token.PARENTHESIS_OPEN, "\'" + Token.PARENTHESIS_OPEN + "\' expected")
+		self.identifierList()
+		self.accept(Token.PARENTHESIS_CLOSE, "\'" + Token.PARENTHESIS_CLOSE + "\' expected")
+	
+	def arrayTypeDefinition(self):
+		self.accept(Token.ARRAY, "\'" + Token.ARRAY + "\' expected")
+		self.accept(Token.PARENTHESIS_OPEN, "\'" + Token.PARENTHESIS_OPEN + "\' expected")
+		self.index()
+		while self.token.code == Token.COMMA:
+			self.token = self.scanner.GetNextToken()
+			self.index()
+		self.accept(Token.PARENTHESIS_CLOSE, "\'" + Token.PARENTHESIS_CLOSE + "\' expected")
+		self.accept(Token.OF, "\'" + Token.OF + "\' expected")
+		self.name()
+
 	def subprogramSpecification(self):
 		self.accept(Token.PROC, "procedure expected!")
 		self.accept(Token.ID, "identifier expected")
 		if self.token.code == "(":	# note
 			self.formalPart()
 
+	def formalPart(self):
+		self.accept(Token.PARENTHESIS_OPEN, "\'" + Token.PARENTHESIS_OPEN + "\' expected")
+		self.parameterSpecification()
+		while self.token.code == Token.SEMICOLON:
+			self.token = self.scanner.GetNextToken()
+			self.parameterSpecification()
+		self.accept(Token.PARENTHESIS_CLOSE, "\'" + Token.PARENTHESIS_CLOSE + "\' expected")
 
+	def parameterSpecification(self):
+		self.identifierList()
+		self.accept(Token.COLON, "\'" + Token.COLON + "\' expected")
+		self.mode()
+		self.name()
+	
+	def mode(self):
+		if self.token.code == "IN":
+			self.token = self.scanner.GetNextToken()
+		if self.token.code == "OUT":
+			self.token = self.scanner.GetNextToken()
 
 	def sequenceOfStatements(self):
 		self.statement()
