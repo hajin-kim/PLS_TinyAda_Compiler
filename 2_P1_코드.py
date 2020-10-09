@@ -204,11 +204,11 @@ class Parser:
 			self.token = scanner.GetNextToken()
 		self.accept(Token.SEMI, "semicolon expected")
 
-	def declarativePart():
+	def declarativePart(self):
 		while token.code in Token.basicDeclarationHandles:
 			self.basicDeclaration()
 
-	def basicDeclaration():
+	def basicDeclaration(self):
 		if token.code == Token.ID:
 			self.numberOrObjectDeclaration()
  		elif self.token.code == Token.TYPE:
@@ -218,13 +218,13 @@ class Parser:
  		else:
  			self.fatalError("error in declaration part")
 
- 	def objectDeclaration():
+ 	def objectDeclaration(self):
  		self.identifierList()
  		self.accept(Token.COLON,"\'" + Token.COLON + "\' expected")
  		self.typeDeclaration()
  		self.accept(Token.SEMICOLON,"\'" + Token.SEMICOLON + "\' expected")
 
- 	def numberDeclaration();
+ 	def numberDeclaration(self);
  		self.identifierList()
  		self.accept(Token.COLON,"\'" + Token.COLON + "\' expected")
  		self.accept("constant","\'" + "constant" + "\' expected")
@@ -232,20 +232,20 @@ class Parser:
  		self.expression()
  		self.accept(Token.SEMICOLON,"\'" + Token.SEMICOLON + "\' expected")
 
- 	def identifierList():
+ 	def identifierList(self):
  		self.identifier()
  		while self.token.code == Token.COMMA:
  			self.token = self.scanner.GetNextToken()
 			self.identifier()
 
-	def typeDeclaration():
+	def typeDeclaration(self):
 		self.accept(Token.TYPE,"\'" + Token.TYPE + "\' expected")
 		self.identifier()
 		self.accept(Token.IS, "\'" + Token.IS + "\' expected")
 		self.typeDefinition()
 		self.accept(Token.SEMICOLON,"\'" + Token.SEMICOLON + "\' expected")
 
-	def typeDefinition():
+	def typeDefinition(self):
 		if token.code == Token.PARENTHESIS_OPEN:
 			pass
 
