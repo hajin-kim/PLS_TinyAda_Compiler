@@ -351,7 +351,8 @@ class Parser:
 
 	def parameterSpecification(self):
 		self.identifierList()
-		self.accept(Token.COLON, "\'" + Token.COLON + "\' expected")
+		self.accept(Token.COLON, 
+					"\'" + Token.COLON + "\' expected")
 		self.mode()
 		self.name()	# force <type>name
 
@@ -365,7 +366,7 @@ class Parser:
 
 	def sequenceOfStatements(self):
 		self.statement()
-		while True:	# should be implemented
+		while self.token.code in (Token.END, Token.ELSIF, Token.ELS):	# should be implemented -> done
 			self.statement()
 
 
@@ -386,6 +387,8 @@ class Parser:
 
 
 	def nameStatement(self):
+		# to invoke procedureStatement(), force <procedure>name
+		# to invoke assignmentStatement(), force <variable>name
 		self.name()
 		if self.token.code == Token.COLON_EQ:
 			self.assignmentStatement()
