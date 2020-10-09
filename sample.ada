@@ -5,7 +5,6 @@ procedure TEST is
 	type COLUMN_INDEX is range 1..COLUMN_MAX;
 	type ROW_INDEX is range 1..ROW_MAX;
 	type MATRIX is array(COLUMN_INDEX, ROW_INDEX) of INTEGER;
-	Figure 6.28 A TinyAda program (continues)
 
 	A : MATRIX;
 	I : INTEGER;
