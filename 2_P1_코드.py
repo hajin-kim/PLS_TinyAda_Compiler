@@ -263,6 +263,30 @@ class Parser:
 
 
 
+	def sequenceOfStatements(self):
+		self.statement()
+		while True:	# should be implemented
+			self.statement()
+
+
+	def statement(self):	# should be implemented
+		self.simpleStatement()
+		self.compoundStatement()
+
+
+	def simpleStatement(self):
+		if self.token.code == Token.NULL:
+			self.nullStatement()
+		elif self.token.code == Token.EXIT:
+			self.exitStatement()
+		else:
+			self.nameStatement()	# own method
+
+
+	def nameStatement(self):
+		self.name()
+
+
 	def compoundStatement(self):
 		"ifStatement | loopStatement"
 		if self.token.code == Token.IF:
