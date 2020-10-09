@@ -118,6 +118,33 @@ class Parser:
 		if 
 
 
+
+	
+	def expression(self):
+		self.relation()
+		while self.token.code == Token.AND or 
+				self.token.code == Token.OR:
+			self.token = self.scanner.GetNextToken()
+			self.relation()
+
+
+	def relation(self):
+		self.simpleExpression()
+		if self.token.code in Token.relationalOperator:
+			self.token = self.scanner.GetNextToken()
+			self.simpleExpression()
+
+
+	def simpleExpression(self):
+		if self.token.code in Token.addingOperator:
+			self.token = self.scanner.GetNextToken()
+		self.term()
+		while self.token.code in Token.addingOperator:
+			self.token = self.scanner.GetNextToken()
+			self.term();
+
+
+
 if __name__ == "__main__":
 	token = Token()
 	chario = Chario("test.txt")
