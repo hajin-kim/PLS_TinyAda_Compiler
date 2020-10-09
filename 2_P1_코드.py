@@ -337,6 +337,10 @@ class Parser:
 
 	def nameStatement(self):
 		self.name()
+		if self.token.code == Token.COLON_EQ:
+			self.assignmentStatement()
+		else:
+			self.procedureCallStatement()
 
 
 	def compoundStatement(self):
@@ -353,7 +357,6 @@ class Parser:
 
 
 	def assignmentStatement(self):
-		self.name()	# force <variable>name
 		self.accept(Token.COLON_EQ, ":= expected")
 		self.expression()
 		self.accept(Token.SEMICOLON, "semicolon expected")
@@ -400,7 +403,6 @@ class Parser:
 
 
 	def procedureCallStatement(self):
-		self.name() # force <procedure>name
 		if self.token.code == Token.PARENTHESIS_OPEN:
 			self.actualParameterPart()
 		self.accept(Token.SEMICOLON, "semicolon expected")
