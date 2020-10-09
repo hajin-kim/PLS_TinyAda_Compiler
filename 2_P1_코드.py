@@ -200,7 +200,7 @@ class Parser:
 		self.accept(Token.BEGIN, "\'" + Token.BEGIN + "\' expected")
 		self.sequenceOfStatements()
 		self.accept(Token.END, "\'" + Token.END + "\' expected")
-		if token.code == Token.ID:
+		if token.code == Token.ID:	# force <procedure>identifier
 			self.token = scanner.GetNextToken()
 		self.accept(Token.SEMI, "semicolon expected")
 
@@ -316,8 +316,10 @@ class Parser:
 
 
 	def statement(self):	# should be implemented
-		self.simpleStatement()
-		self.compoundStatement()
+		if self.token.code in (Token.IF, Token.WHILE, Token.LOOP):
+			self.compoundStatement()
+		else:
+			self.simpleStatement()
 
 
 	def simpleStatement(self):
@@ -410,7 +412,7 @@ class Parser:
 
 
 	def condition(self):
-		self.expression() # force <boolean>
+		self.expression() # force <boolean>expression
 
 	
 	def expression(self):
