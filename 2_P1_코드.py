@@ -69,9 +69,6 @@ class Scanner:
     def __init__(self, chario):
         self.chario = chario
 
-    def PeekNextToken(self):
-        return None
-
     def IntegerToken(self):
         """
         Scans an integer value, which is a series of digits
