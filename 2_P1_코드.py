@@ -139,7 +139,7 @@ class Scanner:
 				candidate = firstChar + self.chario.PeekNextChar()
 				# check if the next character also contributes on making a double character operator(e.g. **)
 				if candidate in doubleCharOperators:
-					return Token(first + self.chario.GetNextChar(), None)
+					return Token(firstChar + self.chario.GetNextChar(), None)
 				else:
 					return Token(firstChar, None)
 			# if none of the above were the case, then its a unexpected symbol
@@ -612,8 +612,11 @@ if __name__ == "__main__":
 
 	while True:
 		token = scanner.GetNextToken()
-		print("token: " + token)
-		if token == "EOF":
+		if token.value is not None:
+			print("token: " + token.code + " value: " + token.value)
+		else:
+			print("token: " + token.code)
+		if token.code == "EOF":
 			break
 
 # 	token = Token()
