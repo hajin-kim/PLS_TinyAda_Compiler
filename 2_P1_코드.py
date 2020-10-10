@@ -144,7 +144,8 @@ class Scanner:
 					return Token(firstChar, None)
 			# if none of the above were the case, then its a unexpected symbol
 			else:
-				self.chario.PrintErrorMessage("Unexpected symbol '" + result + "'")
+				self.chario.PrintErrorMessage("Unexpected symbol '" + firstChar + "'")
+				raise RuntimeError("Unexpected symbol")
 
 
 	def GetNextToken(self):
@@ -593,7 +594,8 @@ class Parser:
 if __name__ == "__main__":
 	chario = Chario("test.txt")
 	scanner = Scanner(chario)
-
+	parser = Parser(chario, scanner)
+	parser.subprogramBody()
 	# while True:
 	# 	peek = chario.PeekNextChar()
 	# 	print("Peek: " + peek)
@@ -610,14 +612,14 @@ if __name__ == "__main__":
 
 	# print(scanner.GetNextToken())
 
-	while True:
-		token = scanner.GetNextToken()
-		if token.value is not None:
-			print("token: " + token.code + " value: " + token.value)
-		else:
-			print("token: " + token.code)
-		if token.code == "EOF":
-			break
+	# while True:
+	# 	token = scanner.GetNextToken()
+	# 	if token.value is not None:
+	# 		print("token: " + token.code + " value: " + token.value)
+	# 	else:
+	# 		print("token: " + token.code)
+	# 	if token.code == "EOF":
+	# 		break
 
 # 	token = Token()
 # 	chario = Chario("test.txt")

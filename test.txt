@@ -1,5 +1,5 @@
 procedure TEST is
-
+	
 	COLUMN_MAX : constant := 10;
 	ROW_MAX : constant := COLUMN_MAX;
 	type COLUMN_INDEX is range 1..COLUMN_MAX;
