@@ -565,10 +565,14 @@ class Parser:
 
 	def expression(self):
 		self.relation()
-		while self.token.code == Token.AND or\
-				self.token.code == Token.OR:
-			self.token = self.scanner.GetNextToken()
-			self.relation()
+		if self.token.code == Token.AND:
+			while self.token.code == Token.AND:
+				self.token = self.scanner.GetNextToken()
+				self.relation()
+		elif self.token.code == Token.OR:
+			while self.token.code == Token.OR:
+				self.token = self.scanner.GetNextToken()
+				self.relation()
 
 
 	def relation(self):
