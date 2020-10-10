@@ -257,7 +257,7 @@ class Parser:
 					"\'" + Token.SEMICOLON + "\' expected")
 
 
-	def numberDeclaration(self);
+	def numberDeclaration(self):
 		self.accept(Token.CONSTANT,
 					"\'" + "constant" + "\' expected")
 		self.accept(Token.COLON_EQ,
