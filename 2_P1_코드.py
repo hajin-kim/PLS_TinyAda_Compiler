@@ -435,7 +435,7 @@ class Parser:
 
 	def sequenceOfStatements(self):
 		self.statement()
-		while self.token.code in (Token.END, Token.ELSIF, Token.ELS):	# should be implemented -> done
+		while self.token.code in (Token.END, Token.ELSIF, Token.ELSE):	# should be implemented -> done
 			self.statement()
 
 
