@@ -14,6 +14,7 @@ tokenizer = pd.Series({
 })
 
 EOF = "EOF"
+ID = "id"
 
 reserved = pd.Series({
 	"IS": "is",

@@ -12,6 +12,61 @@ class Token:
 	and a data type, as we will see in later chapters.
 	"""
 
+	BLANK =" "
+	NEWLINE ="\n"
+	TAB ="\t"
+	CR = "\r"
+	BACKSLASH = "\\"
+	COMMA = ","
+	COLON = ":"
+	SEMICOLON = ";"
+	DOT_DOT = ".."
+	PARENTHESIS_OPEN = "("
+	PARENTHESIS_CLOSE = ")"
+	COLON_EQ = ":="
+	IS ="is"
+	BEGIN = "begin"
+	END = "end"
+	RANGE = "range"
+	ARRAY = "array"
+	OF = "of"
+	IN = "in"
+	OUT = "out"
+	THEN = "then"
+	ELSIF = "elsif"
+	ELSE = "else"
+	WHEN = "when"
+	CONSTANT = "constant"
+	TYPE = "type"
+	PROC = "procedure"
+	EXIT = "exit"
+	IF = "if"
+	LOOP = "loop"
+	NULL ="null"		# page 249
+	WHILE = "while"
+	PLUS ="+"
+	MINUS ="-"
+	MUL ="*"
+	DIV = "/"
+	SQUARE ="**"
+	EQ ="=" 
+	NE ="/=" 
+	LT ="<" 
+	LE ="<=" 
+	GT =">" 
+	GE =">="
+	MOD ="mod"	# note
+	NOT ="not"
+	AND ="and"
+	OR ="or"
+	EOF = "EOF"
+	ID = "id"
+	numericalLiteral = "int"
+	stringLiteral = "id"
+	basicDeclarationHandles = (ID, PROC, TYPE)
+	relationalOperator = (EQ, NE, LT, LE, GT, GE,)
+	addingOperator = (PLUS, MINUS)
+	multiplyingOperator = (MUL, DIV, MOD)
 
 	def __init__(self, code, value):
 		self.code = code
@@ -116,8 +171,6 @@ class Scanner:
 		If an unexpected character is detected, RuntimeError will be raised.
 		"""
 		# print("scanning an operator token...")
-		operators = pd.concat((addingOperator, multiplyingOperator, factorOperator, relationalOperator, tokenizer)).values
-		validOperators = ("+", "-", "*", "/", "=", ":", ".", "(", ")", ",", "<", ">")
 
 		singleCharOperators = ("+", "-", ";", "(", ")", ",")
 		possiblyDoubleCharOperators = ("/", ":", ">", "<", "*")
@@ -223,7 +276,8 @@ class Parser:
 					"\'" + Token.END + "\' expected")
 		if self.token.code == Token.ID:	# force <procedure>identifier
 			self.token = scanner.GetNextToken()
-		self.accept(Token.SEMI, "semicolon expected")
+		self.accept(Token.SEMI, 
+					"semicolon expected")
 
 
 	def declarativePart(self):
@@ -554,7 +608,7 @@ class Parser:
 
 	def primary(self):
 		if self.token.code in (Token.numericalLiteral, Token.stringLiteral):
-			self.token.GetNextToken()
+			self.token = self.scanner.GetNextToken()
 		elif self.token.code == Token.ID:
 			self.name()
 		elif self.token.code == Token.PARENTHESIS_OPEN:
