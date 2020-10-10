@@ -233,45 +233,45 @@ class Parser:
 	def basicDeclaration(self):
 		if self.token.code == Token.ID:
 			self.numberOrObjectDeclaration()
- 		elif self.token.code == Token.TYPE:
- 			self.typeDeclaration()
- 		elif self.token.code == Token.PROC:
- 			self.subprogramBody()
- 		else:
- 			self.fatalError("error in declaration part")
+		elif self.token.code == Token.TYPE:
+			self.typeDeclaration()
+		elif self.token.code == Token.PROC:
+			self.subprogramBody()
+		else:
+			self.fatalError("error in declaration part")
 
 
- 	def numberOrObjectDeclaration(self):
- 		self.identifierList()
- 		self.accept(Token.COLON,
- 					"\'" + Token.COLON + "\' expected")
- 		if self.token.code == Token.CONSTANT:
- 			self.numberDeclaration()
- 		else:
- 			self.objectDeclaration()
+	def numberOrObjectDeclaration(self):
+		self.identifierList()
+		self.accept(Token.COLON,
+					"\'" + Token.COLON + "\' expected")
+		if self.token.code == Token.CONSTANT:
+			self.numberDeclaration()
+		else:
+			self.objectDeclaration()
 
 
- 	def objectDeclaration(self):
- 		self.typeDefinition()
- 		self.accept(Token.SEMICOLON,
- 					"\'" + Token.SEMICOLON + "\' expected")
+	def objectDeclaration(self):
+		self.typeDefinition()
+		self.accept(Token.SEMICOLON,
+					"\'" + Token.SEMICOLON + "\' expected")
 
 
- 	def numberDeclaration(self);
- 		self.accept(Token.CONSTANT,
- 					"\'" + "constant" + "\' expected")
- 		self.accept(Token.COLON_EQ,
- 					"\'" + Token.COLON_EQ + "\' expected")
- 		self.expression()	# force <static>expression
- 		self.accept(Token.SEMICOLON,
- 					"\'" + Token.SEMICOLON + "\' expected")
+	def numberDeclaration(self);
+		self.accept(Token.CONSTANT,
+					"\'" + "constant" + "\' expected")
+		self.accept(Token.COLON_EQ,
+					"\'" + Token.COLON_EQ + "\' expected")
+		self.expression()	# force <static>expression
+		self.accept(Token.SEMICOLON,
+					"\'" + Token.SEMICOLON + "\' expected")
 
 
- 	def identifierList(self):
- 		self.accept(Token.ID,
- 					"identifier expected")
- 		while self.token.code == Token.COMMA:
- 			self.token = self.scanner.GetNextToken()
+	def identifierList(self):
+		self.accept(Token.ID,
+					"identifier expected")
+		while self.token.code == Token.COMMA:
+			self.token = self.scanner.GetNextToken()
 			self.accept(Token.ID,
 						"identifier expected")
 
@@ -298,7 +298,7 @@ class Parser:
 		elif self.token.code == Token.ID:	# force <type>name
 			self.name()
 		else:
- 			self.fatalError("error in type definition part")
+			self.fatalError("error in type definition part")
 
 
 	def range(self):
@@ -316,7 +316,7 @@ class Parser:
 		elif self.token.code == Token.ID:	# force <type>name
 			self.name()
 		else:
- 			self.fatalError("error in indexing")
+			self.fatalError("error in indexing")
 
 
 	def enumerationTypeDefinition(self):
