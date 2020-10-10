@@ -252,7 +252,7 @@ class Parser:
 
 	def accept(self, expected, error_message):
 		if self.token.code != expected:
-			self.fatalError(error_message)
+			self.fatalError(error_message + "but " + self.token.code + " was detected")
 		self.token = self.scanner.GetNextToken()
 
 
@@ -427,9 +427,9 @@ class Parser:
 
 
 	def mode(self):
-		if self.token.code == "IN":
+		if self.token.code == Token.IN:
 			self.token = self.scanner.GetNextToken()
-		if self.token.code == "OUT":
+		if self.token.code == Token.OUT:
 			self.token = self.scanner.GetNextToken()
 
 
