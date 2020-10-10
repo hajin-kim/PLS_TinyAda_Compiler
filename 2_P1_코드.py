@@ -276,7 +276,7 @@ class Parser:
 					"\'" + Token.END + "\' expected")
 		if self.token.code == Token.ID:	# force <procedure>identifier
 			self.token = scanner.GetNextToken()
-		self.accept(Token.SEMI, 
+		self.accept(Token.SEMICOLON, 
 					"semicolon expected")
 
 
@@ -435,7 +435,7 @@ class Parser:
 
 	def sequenceOfStatements(self):
 		self.statement()
-		while self.token.code in (Token.END, Token.ELSIF, Token.ELSE):	# should be implemented -> done
+		while self.token.code not in (Token.END, Token.ELSIF, Token.ELSE):	# should be implemented -> done
 			self.statement()
 
 
