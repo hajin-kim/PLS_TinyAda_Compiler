@@ -621,7 +621,8 @@ class Parser:
 			self.accept(Token.PARENTHESIS_CLOSE,
 						"\')\' expected")
 		else:
-			self.fatalError("error in expression")
+			self.fatalError("error in expression: unexpected token " + 
+				self.token.code + " was detected")
 
 
 	def name(self):
