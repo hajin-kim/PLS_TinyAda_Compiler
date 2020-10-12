@@ -650,7 +650,7 @@ class Parser:
 
 
 if __name__ == "__main__":
-	chario = Chario("test.txt")
+	chario = Chario("sample_edit.ada")
 	scanner = Scanner(chario)
 	parser = Parser(chario, scanner)
 	parser.subprogramBody()
