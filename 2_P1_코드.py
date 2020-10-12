@@ -274,7 +274,7 @@ class Parser:
 		self.sequenceOfStatements()
 		self.accept(Token.END,
 					"\'" + Token.END + "\' expected")
-		if self.token.code == Token.ID:	# force <procedure>identifier
+		if self.token.code == Token.ID:	# TODO: force <procedure>identifier
 			self.token = scanner.GetNextToken()
 		self.accept(Token.SEMICOLON, 
 					"semicolon expected")
@@ -317,7 +317,7 @@ class Parser:
 					"\'" + "constant" + "\' expected")
 		self.accept(Token.COLON_EQ,
 					"\'" + Token.COLON_EQ + "\' expected")
-		self.expression()	# force <static>expression
+		self.expression()	# TODO: force <static>expression
 		self.accept(Token.SEMICOLON,
 					"\'" + Token.SEMICOLON + "\' expected")
 
@@ -350,7 +350,7 @@ class Parser:
 			self.arrayTypeDefinition()
 		elif self.token.code == Token.RANGE:
 			self.range()
-		elif self.token.code == Token.ID:	# force <type>name
+		elif self.token.code == Token.ID:	# TODO: force <type>name
 			self.name()
 		else:
 			self.fatalError("error in type definition part")
@@ -368,7 +368,7 @@ class Parser:
 	def index(self):
 		if self.token.code == Token.RANGE:
 			self.range()
-		elif self.token.code == Token.ID:	# force <type>name
+		elif self.token.code == Token.ID:	# TODO: force <type>name
 			self.name()
 		else:
 			self.fatalError("error in indexing")
@@ -395,7 +395,7 @@ class Parser:
 					"\'" + Token.PARENTHESIS_CLOSE + "\' expected")
 		self.accept(Token.OF,
 					"\'" + Token.OF + "\' expected")
-		self.name()	# force <type>name
+		self.name()	# TODO: force <type>name
 
 
 	def subprogramSpecification(self):
@@ -403,7 +403,7 @@ class Parser:
 					"procedure expected")
 		self.accept(Token.ID,
 					"identifier expected")
-		if self.token.code == "(":	# note
+		if self.token.code == "(":	# TODO: note
 			self.formalPart()
 
 
@@ -423,7 +423,7 @@ class Parser:
 		self.accept(Token.COLON,
 					"\'" + Token.COLON + "\' expected")
 		self.mode()
-		self.name()	# force <type>name
+		self.name()	# TODO: force <type>name
 
 
 	def mode(self):
@@ -435,11 +435,11 @@ class Parser:
 
 	def sequenceOfStatements(self):
 		self.statement()
-		while self.token.code not in (Token.END, Token.ELSIF, Token.ELSE):	# should be implemented -> done
+		while self.token.code not in (Token.END, Token.ELSIF, Token.ELSE):	# TODO: should be implemented -> done
 			self.statement()
 
 
-	def statement(self):	# should be implemented
+	def statement(self):	# TODO: should be implemented
 		if self.token.code in (Token.IF, Token.WHILE, Token.LOOP):
 			self.compoundStatement()
 		else:
@@ -452,12 +452,12 @@ class Parser:
 		elif self.token.code == Token.EXIT:
 			self.exitStatement()
 		else:
-			self.nameStatement()	# own method
+			self.nameStatement()	# TODO: resolve comment: own method
 
 
 	def nameStatement(self):
-		# to invoke procedureStatement(), force <procedure>name
-		# to invoke assignmentStatement(), force <variable>name
+		# TODO: to invoke procedureStatement(), force <procedure>name
+		# TODO: to invoke assignmentStatement(), force <variable>name
 		self.name()
 		if self.token.code == Token.COLON_EQ:
 			self.assignmentStatement()
@@ -560,7 +560,7 @@ class Parser:
 
 
 	def condition(self):
-		self.expression() # force <boolean>expression
+		self.expression() # TODO: force <boolean>expression
 
 
 	def expression(self):
@@ -628,7 +628,7 @@ class Parser:
 	def name(self):
 		self.accept(Token.ID,
 					"identifier expected")
-		if self.token.code == Token.PARENTHESIS_OPEN:	# indexedComponent
+		if self.token.code == Token.PARENTHESIS_OPEN:	# TODO: resolve comment: indexedComponent
 			self.indexedComponent()
 
 
@@ -642,7 +642,7 @@ class Parser:
 		self.accept(Token.PARENTHESIS_CLOSE,
 					"\')\' expected")
 
-
+		# TODO: resolve the following comment
 		#모든 메소드를 호출하면 GetNextToken 이 자동으로 됨
 		#따라서 메소드를 호출한 후에는 GetNextToken 사용 금지
 		#함수를 호출하지 않고 종료되거나 다음 토큰을 봐야 할 경우 사용
