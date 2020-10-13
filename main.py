@@ -9,7 +9,7 @@ if __name__ == "__main__":
 	scanner = Scanner(chario)
 	parser = Parser(chario, scanner)
 	parser.subprogramBody()
-	print("DONE")
+	# print("DONE")
 	
 	# while True:
 	# 	peek = chario.PeekNextChar()
