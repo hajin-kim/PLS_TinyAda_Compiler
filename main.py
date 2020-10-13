@@ -7,10 +7,12 @@ from Parser import Parser
 
 
 if __name__ == "__main__":
-	chario = Chario("input/sample_edit.ada")
+	chario = Chario("./sample_input/sample_edit.ada")
 	scanner = Scanner(chario)
 	parser = Parser(chario, scanner)
 	parser.subprogramBody()
+	# print("DONE")
+	
 	# while True:
 	# 	peek = chario.PeekNextChar()
 	# 	print("Peek: " + peek)

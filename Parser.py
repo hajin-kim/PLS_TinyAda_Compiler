@@ -1,4 +1,7 @@
 from consts import *
+from Token import Token
+from Chario import Chario
+from Scanner import Scanner
 
 
 class Parser:
@@ -48,7 +51,7 @@ class Parser:
 		self.accept(Token.END,
 					"\'" + Token.END + "\' expected")
 		if self.token.code == Token.ID:	# TODO: force <procedure>identifier
-			self.token = scanner.GetNextToken()
+			self.token = self.scanner.GetNextToken()
 		self.accept(Token.SEMICOLON, 
 					"semicolon expected")
 

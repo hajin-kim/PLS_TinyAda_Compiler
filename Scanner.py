@@ -1,4 +1,6 @@
 from consts import *
+from Token import Token
+from Chario import Chario
 
 
 class Scanner:
