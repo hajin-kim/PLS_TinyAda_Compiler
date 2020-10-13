@@ -1,6 +1,3 @@
-from consts import *
-
-
 class Chario:
 	"""
 	The Chario class (short for character I/O) converts

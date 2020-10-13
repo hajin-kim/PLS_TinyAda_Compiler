@@ -1,4 +1,3 @@
-from consts import *
 from Token import Token
 from Chario import Chario
 from Scanner import Scanner

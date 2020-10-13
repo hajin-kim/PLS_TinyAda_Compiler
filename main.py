@@ -1,5 +1,3 @@
-from consts import *	# should be copied
-
 from Token import Token
 from Chario import Chario
 from Scanner import Scanner
@@ -11,7 +9,7 @@ if __name__ == "__main__":
 	scanner = Scanner(chario)
 	parser = Parser(chario, scanner)
 	parser.subprogramBody()
-	# print("DONE")
+	print("DONE")
 	
 	# while True:
 	# 	peek = chario.PeekNextChar()

@@ -1,4 +1,4 @@
-from consts import *
+from Const import Const
 from Token import Token
 from Chario import Chario
 
@@ -24,7 +24,7 @@ class Scanner:
 		while self.chario.PeekNextChar().isdigit():
 			result += self.chario.GetNextChar()
 
-		return Token("int", result)
+		return Token(Const.numericalLiteral, result)
 
 	def AlphabeticToken(self):
 		"""
@@ -32,7 +32,6 @@ class Scanner:
 		"""
 		# print("scanning an alphabetic token...")
 		# all possible alphabetic keywords(e.g. is, null, mod)
-		reservedWords = pd.concat((reserved, basicDeclarationHandles, statementHandles, stringOperator)).values
 
 		# list of characters that cannot exist right after an identifier or a reserved word
 		delimiters = (" ", "\n", "\r", "\t", "\\", ",", ":", "<", ">", "=", ";", "+", "-", "*", "/", "(", ")", "EOF")
@@ -46,10 +45,10 @@ class Scanner:
 		# print(self.chario.PeekNextChar() + " was a delimiter!")
 
 		# return the result as either reserved word itself or an identifier
-		if result in reservedWords:
+		if result in Const.reservedWords:
 			return Token(result, None)
 		else:
-			return Token("id", result)
+			return Token(Const.ID, result)
 
 	def OperatorToken(self):
 		"""
@@ -66,7 +65,7 @@ class Scanner:
 		firstChar = self.chario.GetNextChar()
 		if firstChar == "." and self.chario.PeekNextChar() == ".":
 			self.chario.GetNextChar()
-			return Token("..", None)
+			return Token(Const.DOT_DOT, None)
 
 		# then look for definitely single character operators(e.g. +)
 		if firstChar in singleCharOperators:
@@ -98,7 +97,7 @@ class Scanner:
 			nextChar = self.chario.PeekNextChar()
 			# print("should I remove "+ nextChar+"?")
 			if nextChar == "EOF":
-				return Token("EOF", None)
+				return Token(Const.EOF, None)
 
 			if nextChar in ignoredCharacters:
 				self.chario.GetNextChar()
