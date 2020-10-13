@@ -7,7 +7,7 @@ from Parser import Parser
 
 
 if __name__ == "__main__":
-	chario = Chario("sample_edit.ada")
+	chario = Chario("input/sample_edit.ada")
 	scanner = Scanner(chario)
 	parser = Parser(chario, scanner)
 	parser.subprogramBody()
