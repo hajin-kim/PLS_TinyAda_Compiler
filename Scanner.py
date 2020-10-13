@@ -46,7 +46,7 @@ class Scanner:
 		# print(self.chario.PeekNextChar() + " was a delimiter!")
 
 		# return the result as either reserved word itself or an identifier
-		if result in reservedWords:
+		if result in reservedWords and result != "id":
 			return Token(result, None)
 		else:
 			return Token("id", result)
