@@ -35,6 +35,30 @@ class Parser:
 		#self.accept(Token.EOF)
 
 
+	def ignore_newlines(self):
+		"""
+		ignore preceding newlines("\n")
+		"""
+		while self.token.code == Token.NEWLINE:
+			self.token = self.scanner.GetNextToken()
+
+
+	def discard_tokens(self):
+			# give up parsing the line with an error by discarding all trailling tokens until a newline character
+			message = "trailing tokens: " + str(self.token) + " "
+			
+			self.token = self.scanner.GetNextToken()
+			while self.token.code != Token.NEWLINE:
+				message += str(self.token) + " "
+				self.token = self.scanner.GetNextToken()
+			message += "were discarded"
+			
+			# prepare next token other than newline for next parsing attempt
+			self.ignore_newlines()
+
+			print(message)
+
+
 	def accept(self, expected, error_message):
 		"""
 		accept the current token only with the expected code
@@ -43,9 +67,30 @@ class Parser:
 			expected {Token.{code}} -- expected token code
 			error_message {str} -- error message if unacceptable
 		"""
+		# prepare error message first
+		error_message = "expected [" + expected + "] but " + str(self.token) + " was detected"
+
+		# these tokens always appear that the end of a line
+		line_terminating_tokens = (Token.IS, Token.LOOP, Token.SEMICOLON)
+
+		# if the last token of this line was an unexpected one,
+		# do not remove that newline to preserve the next line's tokens
+		# (if we do ignore it, all the tokens in the next line will be discarded!)
+		if self.token.code == Token.NEWLINE and expected in line_terminating_tokens:
+			self.fatalError(error_message)
+		
+
+		self.ignore_newlines()
+
 		if self.token.code != expected:
-			self.fatalError(error_message + "but " + self.token.code + " was detected")
+
+			# raise error!
+			self.fatalError(error_message)
+
 		self.token = self.scanner.GetNextToken()
+		if expected in line_terminating_tokens:
+			self.ignore_newlines()
+
 
 
 	def fatalError(self, error_message):
@@ -56,6 +101,7 @@ class Parser:
 			error_message {str} -- error message to send to the Chario
 		"""
 		self.chario.PrintErrorMessage(error_message)
+		self.discard_tokens()
 		raise RuntimeError("Fatal error: " + error_message)	# TODO: check the error message format
 
 
@@ -63,24 +109,47 @@ class Parser:
 		"""
 		Check whole subprogram matches to EBNF grammar for TinyAda
 		"""
-		self.subprogramSpecification()
-		self.accept(Token.IS,
-					"\'" + Token.IS + "\' expected")
-		self.declarativePart()
-		self.accept(Token.BEGIN,
-					"\'" + Token.BEGIN + "\' expected")
-		self.sequenceOfStatements()
-		self.accept(Token.END,
-					"\'" + Token.END + "\' expected")
-		if self.token.code == Token.ID:	# TODO: force <procedure>identifier
-			self.token = self.scanner.GetNextToken()
-		self.accept(Token.SEMICOLON, 
-					"semicolon expected")
+
+		try:
+			self.subprogramSpecification()
+			self.accept(Token.IS,
+						"\'" + Token.IS + "\' expected")
+		except RuntimeError as e:
+			print("continue parsing from declarative part of subprogram body\n")
+
+		try:
+			self.declarativePart()
+		except RuntimeError as e:
+			print("continue parsing from [begin] of subprogram body\n")
+
+		try:
+			self.accept(Token.BEGIN,
+						"\'" + Token.BEGIN + "\' expected")
+		except RuntimeError as e:
+			print("continue parsing from sequence of statement of subprogram body\n")
+
+		try:
+			self.sequenceOfStatements()
+		except RuntimeError as e:
+			print("continue parsing from [end] of subprogram body\n")
+
+		try:
+			self.accept(Token.END,
+						"\'" + Token.END + "\' expected")
+			if self.token.code == Token.ID:	# TODO: force <procedure>identifier
+				self.token = self.scanner.GetNextToken()
+			self.accept(Token.SEMICOLON, 
+						"semicolon expected")
+		except RuntimeError as e:
+			print("stop parsing subprogram body\n")
 
 
 	def declarativePart(self):
 		while self.token.code in Token.basicDeclarationHandles:
-			self.basicDeclaration()
+			try:
+				self.basicDeclaration()
+			except RuntimeError as e:
+				print("continue parsing basic declaration of declarative part\n")
 
 
 	def basicDeclaration(self):
@@ -90,8 +159,6 @@ class Parser:
 			self.typeDeclaration()
 		elif self.token.code == Token.PROC:
 			self.subprogramBody()
-		else:
-			self.fatalError("error in declaration part")
 
 
 	def numberOrObjectDeclaration(self):
@@ -151,7 +218,8 @@ class Parser:
 		elif self.token.code == Token.ID:	# TODO: force <type>name
 			self.name()
 		else:
-			self.fatalError("error in type definition part")
+			self.fatalError("expected either an opening parenthesis, an array,"+\
+			" a range, or an identifier but [" + self.token.code + "] was detected")
 
 
 	def range(self):
@@ -238,10 +306,13 @@ class Parser:
 
 
 	def statement(self):	# TODO: should be implemented
-		if self.token.code in (Token.IF, Token.WHILE, Token.LOOP):
-			self.compoundStatement()
-		else:
-			self.simpleStatement()
+		try:
+			if self.token.code in (Token.IF, Token.WHILE, Token.LOOP):
+				self.compoundStatement()
+			else:
+				self.simpleStatement()
+		except:
+			print("continue parsing next statement\n")
 
 
 	def simpleStatement(self):
@@ -310,17 +381,25 @@ class Parser:
 
 
 	def loopStatement(self):
-		if self.token.code == Token.WHILE:
-			self.iterationScheme()
-		self.accept(Token.LOOP,
-					"loop expected")
+		try:
+			if self.token.code == Token.WHILE:
+				self.iterationScheme()
+			self.accept(Token.LOOP,
+						"loop expected")
+		except RuntimeError as e:
+			print("continue parsing from sequence of statements of loop statement\n")
+
 		self.sequenceOfStatements()
-		self.accept(Token.END,
-					"end expected")
-		self.accept(Token.LOOP,
-					"loop expected")
-		self.accept(Token.SEMICOLON,
-					"semicolon expected")
+
+		try:
+			self.accept(Token.END,
+						"end expected")
+			self.accept(Token.LOOP,
+						"loop expected")
+			self.accept(Token.SEMICOLON,
+						"semicolon expected")
+		except RuntimeError as e:
+			print("stop parsing loop statement\n")
 
 
 	def iterationScheme(self):
@@ -419,7 +498,7 @@ class Parser:
 			self.accept(Token.PARENTHESIS_CLOSE,
 						"\')\' expected")
 		else:
-			self.fatalError("error in expression: unexpected token " + 
+			self.fatalError("expected either a numeric literal, an identifier, or an opening parenthesis but " + 
 				self.token.code + " was detected")
 
 

@@ -47,7 +47,7 @@ class Const:
 	AND ="and"
 	OR ="or"
 	EOF = "EOF"
-	ID = "id"
+	ID = "identifier"
 
 	numericalLiteral = "numericalLiteral"
 	stringLiteral = "stringLiteral"

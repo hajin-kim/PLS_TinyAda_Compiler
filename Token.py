@@ -16,5 +16,14 @@ class Token(Const):
 		self.code = code
 		self.value = value
 
-
+	
+	def __str__(self):
+		if self.code == Const.NEWLINE:
+			return "[newline]"
+		
+		name = "[" + self.code
+		if self.code in (Const.numericalLiteral, Const.ID):
+			name += "(" + self.value + ")"
+		name += "]"
+		return name
 
