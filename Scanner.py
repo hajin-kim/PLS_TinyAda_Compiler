@@ -92,7 +92,7 @@ class Scanner:
 		"""
 		# print("scanning a token...")
 		# remove space and newline
-		ignoredCharacters = (" ", "\n", "\r", "\t", "\\")
+		ignoredCharacters = (" ", "\r", "\t")
 		while True:
 			nextChar = self.chario.PeekNextChar()
 			# print("should I remove "+ nextChar+"?")
@@ -105,7 +105,10 @@ class Scanner:
 				break
 
 		nextChar = self.chario.PeekNextChar()
-		if nextChar.isalpha():
+		if nextChar == Const.NEWLINE:
+			self.chario.GetNextChar()
+			return Token(Const.NEWLINE, None)
+		elif nextChar.isalpha():
 			return self.AlphabeticToken()
 		elif nextChar.isdigit():
 			return self.IntegerToken()
