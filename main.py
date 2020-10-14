@@ -5,7 +5,8 @@ from Parser import Parser
 
 
 if __name__ == "__main__":
-	chario = Chario("./sample_input/sample_edit.ada")	# link the input source file
+	FILE_NAME = input("Input the file name: ")
+	chario = Chario(FILE_NAME)	# link the input source file
 	scanner = Scanner(chario)
 	parser = Parser(chario, scanner)
 	# do syntax analysis
