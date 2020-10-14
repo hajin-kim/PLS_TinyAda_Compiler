@@ -12,6 +12,13 @@ class Parser:
 	the first syntax error in a source program.
 	"""
 	def __init__(self, chario, scanner):
+		"""
+		construct a Parser instance
+		
+		Arguments:
+			chario -- the instance of Chario
+			scanner -- the instance of Scanner
+		"""
 		self.chario = chario
 		self.scanner = scanner
 		# should implement handles
@@ -20,25 +27,41 @@ class Parser:
 
 
 	def parse(self):
+		"""
+		do parse the entire source code
+		"""
 		self.subprogramBody()
 		# accept EOF: check if extra symbols after logical end of program exist
 		#self.accept(Token.EOF)
 
 
 	def accept(self, expected, error_message):
+		"""
+		accept the current token only with the expected code
+
+		Arguments:
+			expected {Token.{code}} -- expected token code
+			error_message {str} -- error message if unacceptable
+		"""
 		if self.token.code != expected:
 			self.fatalError(error_message + "but " + self.token.code + " was detected")
 		self.token = self.scanner.GetNextToken()
 
 
-	def fatalError(self, error_messager):
-		self.chario.PrintErrorMessage(error_messager)
-		raise RuntimeError("Fatal error")
+	def fatalError(self, error_message):
+		"""
+		send error message to the Chario instance and throw RuntimeError
+
+		Arguments:
+			error_message {str} -- error message to send to the Chario
+		"""
+		self.chario.PrintErrorMessage(error_message)
+		raise RuntimeError("Fatal error: " + error_message)	# TODO: check the error message format
 
 
 	def subprogramBody(self):
 		"""
-		Check whole subprogram is match with EBNF grammar for TinyAda
+		Check whole subprogram matches to EBNF grammar for TinyAda
 		"""
 		self.subprogramSpecification()
 		self.accept(Token.IS,
