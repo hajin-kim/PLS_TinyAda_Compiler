@@ -7,11 +7,13 @@ class Chario:
 	The Chario class also handles the output of any error messages.
 	"""
 
-	def __init__(self, sourceFileName):
+	def __init__(self, sourceFileName, at):
 		"""
 		open an Ada source file(.txt extension)
 		"""
 		self.sourceFile = open(sourceFileName, 'rb')
+		self.cur_char = 0
+		self.delete_at = at
 
 
 	def GetNextChar(self):
@@ -20,6 +22,11 @@ class Chario:
 		"""
 		escapeSequence = {b'\n' : "\n", b'\t' : "\t", b'\r' : "\r"}
 
+		self.cur_char += 1
+		if self.cur_char == self.delete_at:
+			raw = self.sourceFile.read(1)
+			print("Deleted:", raw)
+			self.cur_char += 1
 		raw = self.sourceFile.read(1)
 		if raw == b'':
 			return "EOF"

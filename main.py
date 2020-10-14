@@ -5,12 +5,16 @@ from Parser import Parser
 
 
 if __name__ == "__main__":
-	chario = Chario("./sample_input/sample_edit.ada")	# link the input source file
-	scanner = Scanner(chario)
-	parser = Parser(chario, scanner)
-	# do syntax analysis
-	parser.subprogramBody()
-	# print("DONE")
+	delete_at = 0
+	while True:
+		chario = Chario("./sample_input/sample_edit.ada", delete_at)	# link the input source file
+		scanner = Scanner(chario)
+		parser = Parser(chario, scanner)
+		# do syntax analysis
+		parser.subprogramBody()
+		print("DONE")
+		input()
+		delete_at += 1
 	
 	# while True:
 	# 	peek = chario.PeekNextChar()
@@ -36,11 +40,6 @@ if __name__ == "__main__":
 	# 		print("token: " + token.code)
 	# 	if token.code == "EOF":
 	# 		break
-
-# 	token = Token()
-# 	chario = Chario("test.txt")
-# 	scanner = Scanner()
-# 	parser = Parser()
 
 # 	while True:
 # 		c = chario.GetNextChar()
