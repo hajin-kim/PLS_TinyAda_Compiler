@@ -48,6 +48,7 @@ class Const:
 	OR ="or"
 	EOF = "EOF"
 	ID = "identifier"
+	UET = "unexpectedToken"
 
 	numericalLiteral = "numericalLiteral"
 	stringLiteral = "stringLiteral"
