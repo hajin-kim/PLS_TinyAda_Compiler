@@ -57,7 +57,7 @@ class Scanner:
 		"""
 		# print("scanning an operator token...")
 
-		singleCharOperators = ("+", "-", ";", "(", ")", ",")
+		singleCharOperators = ("+", "-", ";", "(", ")", ",", "=")
 		possiblyDoubleCharOperators = ("/", ":", ">", "<", "*")
 		doubleCharOperators = ("/=", ":=", "<=", ">=", "**")
 
