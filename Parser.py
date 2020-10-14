@@ -37,9 +37,10 @@ class Parser:
 
 	def ignore_newlines(self):
 		"""
-		ignore preceding newlines("\n")
+		ignore preceding newlines("\n") and unexpected tokens.
+		error message for unexpected token is handled in scanner class.
 		"""
-		while self.token.code == Token.NEWLINE:
+		while self.token.code in (Token.NEWLINE, Token.UET):
 			self.token = self.scanner.GetNextToken()
 
 

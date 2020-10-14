@@ -22,7 +22,7 @@ class Token(Const):
 			return "[newline]"
 		
 		name = "[" + self.code
-		if self.code in (Const.numericalLiteral, Const.ID):
+		if self.code in (Const.numericalLiteral, Const.ID, Const.UET):
 			name += "(" + self.value + ")"
 		name += "]"
 		return name

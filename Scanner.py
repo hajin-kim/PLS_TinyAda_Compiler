@@ -82,8 +82,8 @@ class Scanner:
 					return Token(firstChar, None)
 			# if none of the above were the case, then its a unexpected symbol
 			else:
-				self.chario.PrintErrorMessage("Unexpected symbol '" + firstChar + "'")
-				raise RuntimeError("Unexpected symbol")
+				self.chario.PrintErrorMessage("Unexpected symbol '" + firstChar + "' was scanned")
+				return Token(Const.UET, firstChar)
 
 
 	def GetNextToken(self):
