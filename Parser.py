@@ -48,10 +48,12 @@ class Parser:
 			# give up parsing the line with an error by discarding all trailling tokens until a newline character
 			message = "trailing tokens: " + str(self.token) + " "
 			
-			self.token = self.scanner.GetNextToken()
-			while self.token.code != Token.NEWLINE:
-				message += str(self.token) + " "
+			if self.token.code != Token.NEWLINE:
 				self.token = self.scanner.GetNextToken()
+				while self.token.code != Token.NEWLINE:
+					message += str(self.token) + " "
+					self.token = self.scanner.GetNextToken()
+					
 			message += "were discarded"
 			
 			# prepare next token other than newline for next parsing attempt

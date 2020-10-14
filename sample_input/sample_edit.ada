@@ -22,7 +22,7 @@ procedure TEST is
 				J := J + 1;
 				end loop;
 			I := I + 1;
-			end loop;
+			end lop;
 		end INIT_MATRIX;
 
 	begin
