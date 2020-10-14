@@ -219,7 +219,7 @@ class Parser:
 			self.name()
 		else:
 			self.fatalError("expected either an opening parenthesis, an array,"+\
-			" a range, or an identifier but " + str(self.token.code) + " was detected")
+			" a range, or an identifier but " + str(self.token) + " was detected")
 
 
 	def range(self):
@@ -499,7 +499,7 @@ class Parser:
 						"\')\' expected")
 		else:
 			self.fatalError("expected either a numeric literal, an identifier, or an opening parenthesis but " + 
-				str(self.token.code) + " was detected")
+				str(self.token) + " was detected")
 
 
 	def name(self):
