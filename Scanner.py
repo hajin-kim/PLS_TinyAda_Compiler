@@ -12,37 +12,29 @@ class Scanner:
 	def __init__(self, chario):
 		self.chario = chario
 
-	def PeekNextToken(self):
-		return None
 
 	def IntegerToken(self):
 		"""
 		Scans an integer value, which is a series of digits
 		"""
-		# print("scanning an integer token...")
 		result = ""
 		while self.chario.PeekNextChar().isdigit():
 			result += self.chario.GetNextChar()
 
 		return Token(Const.numericalLiteral, result)
 
+
 	def AlphabeticToken(self):
 		"""
 		Scans either an identifier(e.g. variable name) or a reserved word(e.g. is, null).
 		"""
-		# print("scanning an alphabetic token...")
-		# all possible alphabetic keywords(e.g. is, null, mod)
-
 		# list of characters that cannot exist right after an identifier or a reserved word
 		delimiters = (" ", "\n", "\r", "\t", "\\", ",", ":", "<", ">", "=", ";", "+", "-", "*", "/", "(", ")", "EOF")
 
 		# scan the token
 		result = ""
 		while self.chario.PeekNextChar() not in delimiters:
-			# print(self.chario.PeekNextChar() + " was not a delimiter")
 			result += self.chario.GetNextChar()
-
-		# print(self.chario.PeekNextChar() + " was a delimiter!")
 
 		# return the result as either reserved word itself or an identifier
 		if result in Const.reservedWords:
@@ -50,18 +42,17 @@ class Scanner:
 		else:
 			return Token(Const.ID, result)
 
+
 	def OperatorToken(self):
 		"""
 		Scans an operator symbol from chario(e.g. +, :=).
 		If an unexpected character is detected, RuntimeError will be raised.
 		"""
-		# print("scanning an operator token...")
-
 		singleCharOperators = ("+", "-", ";", "(", ")", ",", "=")
 		possiblyDoubleCharOperators = ("/", ":", ">", "<", "*")
 		doubleCharOperators = ("/=", ":=", "<=", ">=", "**")
 
-		# look for .. first
+		# look for ".." first
 		firstChar = self.chario.GetNextChar()
 		if firstChar == "." and self.chario.PeekNextChar() == ".":
 			self.chario.GetNextChar()
@@ -90,12 +81,10 @@ class Scanner:
 		"""
 		Read characters from chario and return the first token found
 		"""
-		# print("scanning a token...")
-		# remove space and newline
+		# remove ignored characters
 		ignoredCharacters = (" ", "\r", "\t")
 		while True:
 			nextChar = self.chario.PeekNextChar()
-			# print("should I remove "+ nextChar+"?")
 			if nextChar == "EOF":
 				return Token(Const.EOF, None)
 
@@ -104,6 +93,8 @@ class Scanner:
 			else:
 				break
 
+		# check the type of this token.
+		# this scanner assumes that all identifiers start with an alphabet.
 		nextChar = self.chario.PeekNextChar()
 		if nextChar == Const.NEWLINE:
 			self.chario.GetNextChar()
