@@ -5,7 +5,13 @@ from Parser import Parser
 
 
 if __name__ == "__main__":
-	FILE_NAME = input("Input the file name: ")
+	<<<<<<<"""
+	error case is found
+	pls refer ./sample_input/sample_edit.ada line 20, 23
+	H.K.
+	""">>>>>>
+	# FILE_NAME = input("Input the file name: ")	# submission code
+	FILE_NAME = "./sample_input/sample_edit.ada"	# DEV code
 	chario = Chario(FILE_NAME)	# link the input source file
 	scanner = Scanner(chario)
 	parser = Parser(chario, scanner)
