@@ -1,4 +1,9 @@
 class Const:
+	"""
+	The Const class contains the reserved codes of the Token class.
+	"""
+	
+	# delimiter
 	BLANK =" "
 	NEWLINE ="\n"
 	TAB ="\t"
@@ -11,6 +16,8 @@ class Const:
 	PARENTHESIS_OPEN = "("
 	PARENTHESIS_CLOSE = ")"
 	COLON_EQ = ":="
+
+	# reserved words
 	IS ="is"
 	BEGIN = "begin"
 	END = "end"
@@ -31,6 +38,8 @@ class Const:
 	LOOP = "loop"
 	NULL ="null"		# page 249
 	WHILE = "while"
+
+	# operators
 	PLUS ="+"
 	MINUS ="-"
 	MUL ="*"
@@ -46,12 +55,16 @@ class Const:
 	NOT ="not"
 	AND ="and"
 	OR ="or"
-	EOF = "EOF"
-	ID = "id"
 
+	# special codes
+	ID = "identifier"
 	numericalLiteral = "numericalLiteral"
 	stringLiteral = "stringLiteral"
+	EOF = "EOF"
+	UET = "unexpectedToken"
+
 	basicDeclarationHandles = (ID, PROC, TYPE)
+	statementHandles = (EXIT, ID, IF, LOOP, NULL, WHILE)
 	relationalOperator = (EQ, NE, LT, LE, GT, GE,)
 	addingOperator = (PLUS, MINUS)
 	multiplyingOperator = (MUL, DIV, MOD)
@@ -65,79 +78,10 @@ class Const:
 	)
 
 
-# TODO: DELETE BELOW
-
-# import pandas as pd
-
-# tokenizer = pd.Series({
-# 	#"BLANK": " ",
-# 	#"NEWLINE": "\n",
-# 	#"TAB": "\t",
-# 	"COMMA":  ",",
-# 	"COLON":  ":",
-# 	"SEMICOLON":  ";",
-# 	"DOT_DOT":  "..",
-# 	"PARENTHESIS_OPEN":  "(",
-# 	"PARENTHESIS_CLOSE":  ")",
-# 	"COLON_EQ":  ":="
-# })
-
-# EOF = "EOF"
-# ID = "id"
-
-# reserved = pd.Series({
-# 	"IS": "is",
-# 	"BEGIN":  "begin",
-# 	"END":  "end",
-# 	"RANGE":  "range",
-# 	"ARRAY":  "array",
-# 	"OF":  "of",
-# 	"IN":  "in",
-# 	"OUT":  "out",
-# 	"THEN":  "then",
-# 	"ELSIF":  "elsif",
-# 	"ELSE":  "else",
-# 	"WHEN":  "when",
-# 	"CONSTANT":  "constant"
-# })
-
-# basicDeclarationHandles = pd.Series({
-# 	"TYPE":  "type",
-# 	"ID": "id",		# page 249
-# 	"PROC":  "procedure",
-# })
-
-# statementHandles = pd.Series({
-# 	"EXIT":  "exit",
-# 	"ID": "id",		# page 249
-# 	"IF":  "if",
-# 	"LOOP":  "loop",
-# 	"NULL": "null",		# page 249
-# 	"WHILE":  "while",
-# })
-
-# addingOperator = pd.Series({
-# 	"PLUS": "+",
-# 	"MINUS": "-"
-# })
-
-# multiplyingOperator = pd.Series({
-# 	"MUL": "*",
-# 	"DIV":  "/"
-# })
-
 # factorOperator = pd.Series({
 # 	"SQUARE": "**"
 # })
-
-# relationalOperator = pd.Series({
-# 	"EQ": "=" ,
-# 	"NE": "/=" ,
-# 	"LT": "<" ,
-# 	"LE": "<=" ,
-# 	"GT": ">" ,
-# 	"GE": ">="
-# })
+# 
 
 # stringOperator = pd.Series({
 # 	"MOD": "mod",	# note
@@ -146,11 +90,7 @@ class Const:
 # 	"OR": "or"
 # })
 
-
 # scannerUnit = pd.concat((tokenizer, addingOperator, multiplyingOperator, factorOperator, relationalOperator))
 
 # tokenCode = pd.concat((tokenizer, reserved, basicDeclarationHandles, statementHandles, addingOperator, multiplyingOperator, factorOperator, relationalOperator)).unique()
 
-# if __name__ == '__main__':
-# 	print(scannerUnit)
-# 	print(tokenCode)

@@ -16,5 +16,21 @@ class Token(Const):
 		self.code = code
 		self.value = value
 
-
+	
+	def __str__(self):
+		"""
+		convert a token into a descriptive string.
+		the format is "[type(value)]", where (value) is an optional part for
+		identifier, numeric literal, and unexpected token.
+		the only exception is a newline, which is directly converted to string "newline".
+		this decision was made because raw \n character might spoil the entire output format.
+		"""
+		if self.code == Const.NEWLINE:
+			return "[newline]"
+		
+		name = "[" + self.code
+		if self.code in (Const.numericalLiteral, Const.ID, Const.UET):
+			name += "(" + self.value + ")"
+		name += "]"
+		return name
 

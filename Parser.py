@@ -35,6 +35,33 @@ class Parser:
 		#self.accept(Token.EOF)
 
 
+	def ignore_newlines(self):
+		"""
+		ignore preceding newlines("\n") and unexpected tokens.
+		error message for unexpected token is handled in scanner class.
+		"""
+		while self.token.code in (Token.NEWLINE, Token.UET):
+			self.token = self.scanner.GetNextToken()
+
+
+	def discard_tokens(self):
+			# give up parsing the line with an error by discarding all trailling tokens until a newline character
+			message = "trailing tokens: " + str(self.token) + " "
+			
+			if self.token.code != Token.NEWLINE:
+				self.token = self.scanner.GetNextToken()
+				while self.token.code != Token.NEWLINE:
+					message += str(self.token) + " "
+					self.token = self.scanner.GetNextToken()
+					
+			message += "were discarded"
+			
+			# prepare next token other than newline for next parsing attempt
+			self.ignore_newlines()
+
+			print(message)
+
+
 	def accept(self, expected, error_message):
 		"""
 		accept the current token only with the expected code
@@ -43,9 +70,30 @@ class Parser:
 			expected {Token.{code}} -- expected token code
 			error_message {str} -- error message if unacceptable
 		"""
+		# prepare error message first
+		error_message = "expected [" + expected + "] but " + str(self.token) + " was detected"
+
+		# these tokens always appear that the end of a line
+		line_terminating_tokens = (Token.IS, Token.LOOP, Token.SEMICOLON)
+
+		# if the last token of this line was an unexpected one,
+		# do not remove that newline to preserve the next line's tokens
+		# (if we do ignore it, all the tokens in the next line will be discarded!)
+		if self.token.code == Token.NEWLINE and expected in line_terminating_tokens:
+			self.fatalError(error_message)
+		
+
+		self.ignore_newlines()
+
 		if self.token.code != expected:
-			self.fatalError(error_message + "but " + self.token.code + " was detected")
+
+			# raise error!
+			self.fatalError(error_message)
+
 		self.token = self.scanner.GetNextToken()
+		if expected in line_terminating_tokens:
+			self.ignore_newlines()
+
 
 
 	def fatalError(self, error_message):
@@ -56,6 +104,7 @@ class Parser:
 			error_message {str} -- error message to send to the Chario
 		"""
 		self.chario.PrintErrorMessage(error_message)
+		self.discard_tokens()
 		raise RuntimeError("Fatal error: " + error_message)	# TODO: check the error message format
 
 
@@ -63,38 +112,71 @@ class Parser:
 		"""
 		Check whole subprogram matches to EBNF grammar for TinyAda
 		"""
-		self.subprogramSpecification()
-		self.accept(Token.IS,
-					"\'" + Token.IS + "\' expected")
-		self.declarativePart()
-		self.accept(Token.BEGIN,
-					"\'" + Token.BEGIN + "\' expected")
-		self.sequenceOfStatements()
-		self.accept(Token.END,
-					"\'" + Token.END + "\' expected")
-		if self.token.code == Token.ID:	# TODO: force <procedure>identifier
-			self.token = self.scanner.GetNextToken()
-		self.accept(Token.SEMICOLON, 
-					"semicolon expected")
+
+		try:
+			self.subprogramSpecification()
+			self.accept(Token.IS,
+						"\'" + Token.IS + "\' expected")
+		except RuntimeError as e:
+			print("continue parsing from declarative part of subprogram body\n")
+
+		try:
+			self.declarativePart()
+		except RuntimeError as e:
+			print("continue parsing from [begin] of subprogram body\n")
+
+		try:
+			self.accept(Token.BEGIN,
+						"\'" + Token.BEGIN + "\' expected")
+		except RuntimeError as e:
+			print("continue parsing from sequence of statement of subprogram body\n")
+
+		try:
+			self.sequenceOfStatements()
+		except RuntimeError as e:
+			print("continue parsing from [end] of subprogram body\n")
+
+		try:
+			self.accept(Token.END,
+						"\'" + Token.END + "\' expected")
+			if self.token.code == Token.ID:	# TODO: force <procedure>identifier
+				self.token = self.scanner.GetNextToken()
+			self.accept(Token.SEMICOLON, 
+						"semicolon expected")
+		except RuntimeError as e:
+			print("stop parsing subprogram body\n")
 
 
 	def declarativePart(self):
+		"""
+		call basicDeclaration function while token is in basicDeclarationHandles
+		"""
 		while self.token.code in Token.basicDeclarationHandles:
-			self.basicDeclaration()
+			try:
+				self.basicDeclaration()
+			except RuntimeError as e:
+				print("continue parsing basic declaration of declarative part\n")
 
 
 	def basicDeclaration(self):
+		"""
+		check which declaration the token is and call declaration function
+		"""
 		if self.token.code == Token.ID:
 			self.numberOrObjectDeclaration()
 		elif self.token.code == Token.TYPE:
 			self.typeDeclaration()
 		elif self.token.code == Token.PROC:
 			self.subprogramBody()
-		else:
-			self.fatalError("error in declaration part")
 
 
 	def numberOrObjectDeclaration(self):
+		"""
+		as number declaration and Object declaration both have identifierList
+		and ":",  this function first parsing identifierList and ":".
+		Then check the token is number declaration Or Object declaration 
+		and call declaration function
+		"""
 		self.identifierList()
 		self.accept(Token.COLON,
 					"\'" + Token.COLON + "\' expected")
@@ -105,12 +187,18 @@ class Parser:
 
 
 	def objectDeclaration(self):
+		"""
+		check the statement has typeDefinition and ";"
+		"""
 		self.typeDefinition()
 		self.accept(Token.SEMICOLON,
 					"\'" + Token.SEMICOLON + "\' expected")
 
 
 	def numberDeclaration(self):
+		"""
+		check the statement has  "constant", ":=", <static>expression and ";"
+		"""
 		self.accept(Token.CONSTANT,
 					"\'" + "constant" + "\' expected")
 		self.accept(Token.COLON_EQ,
@@ -121,6 +209,11 @@ class Parser:
 
 
 	def identifierList(self):
+		"""
+		check the statement is in the same format as the EBNF of Tinyada,
+		
+		identifierList = identifier { "," identifier }
+		"""
 		self.accept(Token.ID,
 					"identifier expected")
 		while self.token.code == Token.COMMA:
@@ -130,6 +223,11 @@ class Parser:
 
 
 	def typeDeclaration(self):
+		"""
+		check the statement is in the same format as the EBNF of Tinyada,
+		
+		typeDeclaration = "type" identifier "is" typeDefinition ";"
+		"""
 		self.accept(Token.TYPE,
 					"\'" + Token.TYPE + "\' expected")
 		self.accept(Token.ID,
@@ -142,6 +240,12 @@ class Parser:
 
 
 	def typeDefinition(self):
+		"""
+		check the statement is in the same format as the EBNF of Tinyada,
+		
+		typeDefinition = enumerationTypeDefinition | arrayTypeDefinition
+ 		| range | <type>name
+		"""
 		if self.token.code == Token.PARENTHESIS_OPEN:
 			self.enumerationTypeDefinition()
 		elif self.token.code == Token.ARRAY:
@@ -151,10 +255,16 @@ class Parser:
 		elif self.token.code == Token.ID:	# TODO: force <type>name
 			self.name()
 		else:
-			self.fatalError("error in type definition part")
+			self.fatalError("expected either an opening parenthesis, an array,"+\
+			" a range, or an identifier but " + str(self.token) + " was detected")
 
 
 	def range(self):
+		"""
+		check the statement is in the same format as the EBNF of Tinyada,
+		
+		range = "range " simpleExpression ".." simpleExpression
+		"""
 		self.accept(Token.RANGE,
 					"\'" + Token.IS + "\' expected")
 		self.simpleExpression()
@@ -164,6 +274,11 @@ class Parser:
 
 
 	def index(self):
+		"""
+		check the statement is in the same format as the EBNF of Tinyada,
+		
+		index = range | <type>name
+		"""
 		if self.token.code == Token.RANGE:
 			self.range()
 		elif self.token.code == Token.ID:	# TODO: force <type>name
@@ -173,6 +288,11 @@ class Parser:
 
 
 	def enumerationTypeDefinition(self):
+		"""
+		check the statement is in the same format as the EBNF of Tinyada,
+		
+		enumerationTypeDefinition = "(" identifierList ")"
+		"""
 		self.accept(Token.PARENTHESIS_OPEN,
 					"\'" + Token.PARENTHESIS_OPEN + "\' expected")
 		self.identifierList()
@@ -181,6 +301,11 @@ class Parser:
 
 
 	def arrayTypeDefinition(self):
+		"""
+		check the statement is in the same format as the EBNF of Tinyada,
+		
+		arrayTypeDefinition = "array" "(" index { "," index } ")" "of" <type>name
+		"""
 		self.accept(Token.ARRAY,
 					"\'" + Token.ARRAY + "\' expected")
 		self.accept(Token.PARENTHESIS_OPEN,
@@ -197,6 +322,11 @@ class Parser:
 
 
 	def subprogramSpecification(self):
+		"""
+		check the statement is in the same format as the EBNF of Tinyada,
+		
+		subprogramSpecification = "procedure" identifier [ formalPart ]
+		"""
 		self.accept(Token.PROC,
 					"procedure expected")
 		self.accept(Token.ID,
@@ -206,6 +336,11 @@ class Parser:
 
 
 	def formalPart(self):
+		"""
+		check the statement is in the same format as the EBNF of Tinyada,
+		
+		formalPart = "(" parameterSpecification { ";" parameterSpecification } ")"
+		"""
 		self.accept(Token.PARENTHESIS_OPEN,
 					"\'" + Token.PARENTHESIS_OPEN + "\' expected")
 		self.parameterSpecification()
@@ -217,6 +352,11 @@ class Parser:
 
 
 	def parameterSpecification(self):
+		"""
+		check the statement is in the same format as the EBNF of Tinyada,
+		
+		parameterSpecification = identifierList ":" mode <type>name
+		"""
 		self.identifierList()
 		self.accept(Token.COLON,
 					"\'" + Token.COLON + "\' expected")
@@ -225,6 +365,11 @@ class Parser:
 
 
 	def mode(self):
+		"""
+		check the statement is in the same format as the EBNF of Tinyada,
+		
+		mode = [ "in" ] | "in" "out" | "out"
+		"""
 		if self.token.code == Token.IN:
 			self.token = self.scanner.GetNextToken()
 		if self.token.code == Token.OUT:
@@ -232,19 +377,38 @@ class Parser:
 
 
 	def sequenceOfStatements(self):
+		"""
+		check the statement is in the same format as the EBNF of Tinyada,
+		
+		sequenceOfStatements = statement { statement }
+		"""
 		self.statement()
 		while self.token.code not in (Token.END, Token.ELSIF, Token.ELSE):	# TODO: should be implemented -> done
 			self.statement()
 
 
 	def statement(self):	# TODO: should be implemented
-		if self.token.code in (Token.IF, Token.WHILE, Token.LOOP):
-			self.compoundStatement()
-		else:
-			self.simpleStatement()
+		"""
+		check the statement is in the same format as the EBNF of Tinyada,
+		
+		statement = simpleStatement | compoundStatement
+		"""
+		try:
+			if self.token.code in (Token.IF, Token.WHILE, Token.LOOP):
+				self.compoundStatement()
+			else:
+				self.simpleStatement()
+		except:
+			print("continue parsing next statement\n")
 
 
 	def simpleStatement(self):
+		"""
+		check the statement is in the same format as the EBNF of Tinyada,
+		
+		simpleStatement = nullStatement | assignmentStatement
+				 | procedureCallStatement | exitStatement
+		"""
 		if self.token.code == Token.NULL:
 			self.nullStatement()
 		elif self.token.code == Token.EXIT:
@@ -254,6 +418,11 @@ class Parser:
 
 
 	def nameStatement(self):
+		"""
+		as number procedureCallStatement and assignmentStatement both have name,
+		this function first parsing name. Then check the token is assignmentStatement
+		or procedureCallStatement and call declaration function
+		"""
 		# TODO: to invoke procedureStatement(), force <procedure>name
 		# TODO: to invoke assignmentStatement(), force <variable>name
 		self.name()
@@ -264,6 +433,11 @@ class Parser:
 
 
 	def compoundStatement(self):
+		"""
+		check the statement is in the same format as the EBNF of Tinyada,
+		
+		compoundStatement = ifStatement | loopStatement
+		"""
 		if self.token.code == Token.IF:
 			self.ifStatement()
 		else:
@@ -271,6 +445,11 @@ class Parser:
 
 
 	def nullStatement(self):
+		"""
+		check the statement is in the same format as the EBNF of Tinyada,
+		
+		nullStatement = "null" ";"
+		"""
 		self.accept(Token.NULL,
 					"null expected")
 		self.accept(Token.SEMICOLON,
@@ -278,6 +457,11 @@ class Parser:
 
 
 	def assignmentStatement(self):
+		"""
+		check the statement is in the same format as the EBNF of Tinyada,
+		
+		assignmentStatement = <variable>name ":=" expression ";"
+		"""
 		self.accept(Token.COLON_EQ,
 					":= expected")
 		self.expression()
@@ -286,6 +470,15 @@ class Parser:
 
 
 	def ifStatement(self):
+		"""
+		check the statement is in the same format as the EBNF of Tinyada,
+		
+		ifStatement =
+				"if" condition "then" sequenceOfStatements
+ 				{ "elsif" condition "then" sequenceOfStatements }
+ 				[ "else" sequenceOfStatements ]
+				 "end" "if" ";"
+		"""
 		self.accept(Token.IF,
 					"if expected")
 		self.condition()
@@ -310,26 +503,50 @@ class Parser:
 
 
 	def loopStatement(self):
-		if self.token.code == Token.WHILE:
-			self.iterationScheme()
-		self.accept(Token.LOOP,
-					"loop expected")
+		"""
+		check the statement is in the same format as the EBNF of Tinyada,
+		
+		loopStatement =
+ 				[ iterationScheme ] "loop" sequenceOfStatements "end" "loop" ";"
+		"""
+		try:
+			if self.token.code == Token.WHILE:
+				self.iterationScheme()
+			self.accept(Token.LOOP,
+						"loop expected")
+		except RuntimeError as e:
+			print("continue parsing from sequence of statements of loop statement\n")
+
 		self.sequenceOfStatements()
-		self.accept(Token.END,
-					"end expected")
-		self.accept(Token.LOOP,
-					"loop expected")
-		self.accept(Token.SEMICOLON,
-					"semicolon expected")
+
+		try:
+			self.accept(Token.END,
+						"end expected")
+			self.accept(Token.LOOP,
+						"loop expected")
+			self.accept(Token.SEMICOLON,
+						"semicolon expected")
+		except RuntimeError as e:
+			print("stop parsing loop statement\n")
 
 
 	def iterationScheme(self):
+		"""
+		check the statement is in the same format as the EBNF of Tinyada,
+		
+		iterationScheme = "while" condition
+		"""
 		self.accept(Token.WHILE,
 					"while expected")
 		self.condition()
 
 
 	def exitStatement(self):
+		"""
+		check the statement is in the same format as the EBNF of Tinyada,
+		
+		exitStatement = "exit" [ "when" condition ] ";"
+		"""
 		self.accept(Token.EXIT,
 					"exit expected")
 		if self.token.code == Token.WHEN:
@@ -340,6 +557,11 @@ class Parser:
 
 
 	def procedureCallStatement(self):
+		"""
+		check the statement is in the same format as the EBNF of Tinyada,
+		
+		procedureCallStatement = <procedure>name [ actualParameterPart ] ";"
+		"""
 		if self.token.code == Token.PARENTHESIS_OPEN:
 			self.actualParameterPart()
 		self.accept(Token.SEMICOLON,
@@ -347,6 +569,11 @@ class Parser:
 
 
 	def actualParameterPart(self):
+		"""
+		check the statement is in the same format as the EBNF of Tinyada,
+		
+		actualParameterPart = "(" expression { "," expression } ")"
+		"""
 		self.accept(Token.PARENTHESIS_OPEN,
 					"open parenthesis expected")
 		self.expression()
@@ -358,10 +585,20 @@ class Parser:
 
 
 	def condition(self):
+		"""
+		check the statement is in the same format as the EBNF of Tinyada,
+		
+		condition = <boolean>expression
+		"""
 		self.expression() # TODO: force <boolean>expression
 
 
 	def expression(self):
+		"""
+		check the statement is in the same format as the EBNF of Tinyada,
+		
+		expression = relation { "and" relation } | { "or" relation }
+		"""
 		self.relation()
 		if self.token.code == Token.AND:
 			while self.token.code == Token.AND:
@@ -374,6 +611,11 @@ class Parser:
 
 
 	def relation(self):
+		"""
+		check the statement is in the same format as the EBNF of Tinyada,
+		
+		relation = simpleExpression [ relationalOperator simpleExpression ]
+		"""
 		self.simpleExpression()
 		if self.token.code in Token.relationalOperator:
 			self.token = self.scanner.GetNextToken()
@@ -381,6 +623,12 @@ class Parser:
 
 
 	def simpleExpression(self):
+		"""
+		check the statement is in the same format as the EBNF of Tinyada,
+		
+		simpleExpression =
+				[ unaryAddingOperator ] term { binaryAddingOperator term }
+		"""
 		if self.token.code in Token.addingOperator:
 			self.token = self.scanner.GetNextToken()
 		self.term()
@@ -390,6 +638,11 @@ class Parser:
 
 
 	def term(self):
+		"""
+		check the statement is in the same format as the EBNF of Tinyada,
+		
+		term = factor { multiplyingOperator factor }
+		"""
 		self.factor()
 		while self.token in Token.multiplyingOperator:
 			self.token = self.scanner.GetNextToken()
@@ -397,6 +650,11 @@ class Parser:
 
 
 	def factor(self):
+		"""
+		check the statement is in the same format as the EBNF of Tinyada,
+		
+		factor = primary [ "**" primary ] | "not" primary
+		"""
 		# not
 		if self.token.code == Token.NOT:
 			self.token = self.scanner.GetNextToken()
@@ -409,6 +667,11 @@ class Parser:
 
 
 	def primary(self):
+		"""
+		check the statement is in the same format as the EBNF of Tinyada,
+		
+		primary = numericLiteral | stringLiteral | name | "(" expression ")"
+		"""
 		if self.token.code in (Token.numericalLiteral, Token.stringLiteral):
 			self.token = self.scanner.GetNextToken()
 		elif self.token.code == Token.ID:
@@ -419,11 +682,16 @@ class Parser:
 			self.accept(Token.PARENTHESIS_CLOSE,
 						"\')\' expected")
 		else:
-			self.fatalError("error in expression: unexpected token " + 
-				self.token.code + " was detected")
+			self.fatalError("expected either a numeric literal, an identifier, or an opening parenthesis but " + 
+				str(self.token) + " was detected")
 
 
 	def name(self):
+		"""
+		check the statement is in the same format as the EBNF of Tinyada,
+		
+		name = identifier [ indexedComponent ]
+		"""
 		self.accept(Token.ID,
 					"identifier expected")
 		if self.token.code == Token.PARENTHESIS_OPEN:	# TODO: resolve comment: indexedComponent
@@ -431,6 +699,11 @@ class Parser:
 
 
 	def indexedComponent(self):
+		"""
+		check the statement is in the same format as the EBNF of Tinyada,
+		
+		indexedComponent = "(" expression { "," expression } ")"
+		"""
 		self.accept(Token.PARENTHESIS_OPEN,
 					"\'(\' expected")
 		self.expression()

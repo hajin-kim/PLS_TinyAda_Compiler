@@ -18,9 +18,13 @@ class Chario:
 		"""
 		Read a single character and convert it to lower case
 		"""
+		escapeSequence = {b'\n' : "\n", b'\t' : "\t", b'\r' : "\r"}
+
 		raw = self.sourceFile.read(1)
 		if raw == b'':
 			return "EOF"
+		elif raw in escapeSequence:
+			return escapeSequence[raw]
 		else:
 			return str(raw)[2:3].lower()
 

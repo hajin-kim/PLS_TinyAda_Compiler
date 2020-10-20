@@ -17,7 +17,7 @@ procedure TEST is
 		I := 1;
 		while I <= COLUMN_MAX loop
 			J := 1;
-			while J <= ROW_MAX loop
+			if J <= ROW_MAX then
 				Y(I, J) := X;
 				J := J + 1;
 				end loop;
