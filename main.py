@@ -6,8 +6,7 @@ from Parser import Parser
 
 if __name__ == "__main__":
 	<<<<<<<"""
-	error case is found
-	pls refer ./sample_input/sample_edit.ada line 20, 23
+	pls refer ./sample_input/sample_edit.ada line 24
 	H.K.
 	""">>>>>>
 	# FILE_NAME = input("Input the file name: ")	# submission code
