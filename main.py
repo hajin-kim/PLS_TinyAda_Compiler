@@ -6,11 +6,10 @@ from Parser import Parser
 
 if __name__ == "__main__":
 	<<<<<<"""
-	found error
-	plz refer line 24 at ./sample_input/sample_edit.ada
+	plz refer ./sample_input/endif.ada
 	""">>>>>>
 	# FILE_NAME = input("Input the file name: ")	# submission code
-	FILE_NAME = "./sample_input/sample_edit.ada"	# DEV code
+	FILE_NAME = "./sample_input/endif.ada"	# DEV code
 	chario = Chario(FILE_NAME)	# link the input source file
 	scanner = Scanner(chario)
 	parser = Parser(chario, scanner)
