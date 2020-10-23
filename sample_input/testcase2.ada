@@ -6,6 +6,6 @@ procedure Test is
 
 	if J <= 15 then
 		I := 0;
-		en if;
+		end if;
 
 	End Test;

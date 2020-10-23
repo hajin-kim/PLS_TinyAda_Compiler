@@ -4,8 +4,10 @@ procedure Test is
 
 	begin
 
+	I := 0;
+
 	if J <= 15 then
 		I := 0;
-		en if;
+		end if;
 
 	End Test;
