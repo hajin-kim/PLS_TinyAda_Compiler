@@ -26,7 +26,7 @@ class Parser:
 		# should implement handles
 		#self.initHandles()
 		self.token = scanner.GetNextToken()
-		self.table = SymbolTable()
+		self.table = SymbolTable(self.chario)
 
 		# init SymbolTable
 		self.table.enterScope()
@@ -57,7 +57,7 @@ class Parser:
 			role {[str, None]} -- SymbolEntry role constants, optional (default: {None})
 		"""
 		for identifier in identifierList:
-			self.table.enterSymbol(identifier, role):
+			self.table.enterSymbol(identifier, role)
 
 
 	# def setRole(self, identifierList, role):
@@ -139,7 +139,6 @@ class Parser:
 		entry = self.table.findSymbol(identifier)
 		if (not entry is None and entry.role != expected):
 			self.chario.PrintErrorMessage(entry.name + ": expected " + expected + " identifier, not " + entry.role)
-		self.token = self.scanner.GetNextToken()
 
 
 	def fatalError(self, error_message):
@@ -191,10 +190,10 @@ class Parser:
 
 			# force <procedure>identifier
 			if self.token.code == Token.ID:
-				identifier = self.token.name
+				identifier = self.token.value
 				self.acceptRole(identifier, SymbolEntry.PROC)
 				if identifier != procedure_name:
-					self.chario.PrintErrorMessage(entry.name + ": expected " + procedure_name)
+					self.chario.PrintErrorMessage("unexpected [" + identifier + "], expected [" + procedure_name + "]")
 				self.token = self.scanner.GetNextToken()
 
 			self.accept(Token.SEMICOLON, 
@@ -276,12 +275,12 @@ class Parser:
 		"""
 		identifiers = []
 
-		identifiers.append(self.token.name)
+		identifiers.append(self.token.value)
 		self.accept(Token.ID,
 					"identifier expected")
 		while self.token.code == Token.COMMA:
 			self.token = self.scanner.GetNextToken()
-			identifiers.append(self.token.name)
+			identifiers.append(self.token.value)
 			self.accept(Token.ID,
 						"identifier expected")
 
@@ -296,7 +295,7 @@ class Parser:
 		"""
 		self.accept(Token.TYPE,
 					"\'" + Token.TYPE + "\' expected")
-		identifier = self.token.name
+		identifier = self.token.value
 		self.accept(Token.ID,
 					"identifier expected")
 		self.accept(Token.IS,
@@ -322,7 +321,7 @@ class Parser:
 			self.range()
 		elif self.token.code == Token.ID:
 			# force <type>name
-			self.acceptRole(self.token.name, SymbolEntry.TYPE)
+			self.acceptRole(self.token.value, SymbolEntry.TYPE)
 			self.name()
 		else:
 			self.fatalError("expected either an opening parenthesis, an array,"+\
@@ -353,7 +352,7 @@ class Parser:
 			self.range()
 		elif self.token.code == Token.ID:
 			# force <type>name
-			self.acceptRole(self.token.name, SymbolEntry.TYPE)
+			self.acceptRole(self.token.value, SymbolEntry.TYPE)
 			self.name()
 		else:
 			self.fatalError("error in indexing")
@@ -392,7 +391,7 @@ class Parser:
 		self.accept(Token.OF,
 					"\'" + Token.OF + "\' expected")
 		# force <type>name
-		self.acceptRole(self.token.name, SymbolEntry.TYPE)
+		self.acceptRole(self.token.value, SymbolEntry.TYPE)
 		self.name()
 
 
@@ -404,7 +403,7 @@ class Parser:
 		"""
 		self.accept(Token.PROC,
 					"procedure expected")
-		identifier = self.token.name
+		identifier = self.token.value
 		self.accept(Token.ID,
 					"identifier expected")	# TODO: enter symbol of procedure identifier
 		self.table.enterSymbol(identifier, SymbolEntry.PROC)
@@ -441,7 +440,7 @@ class Parser:
 					"\'" + Token.COLON + "\' expected")
 		self.mode()
 		# force <type>name
-		self.acceptRole(self.token.name, SymbolEntry.TYPE)
+		self.acceptRole(self.token.value, SymbolEntry.TYPE)
 		self.name()
 		self.pushSymbols(identifiers, SymbolEntry.PARAM)
 
@@ -505,7 +504,7 @@ class Parser:
 		this function first parsing name. Then check the token is assignmentStatement
 		or procedureCallStatement and call declaration function
 		"""
-		identifier = self.token.name
+		identifier = self.token.value
 		self.name()
 		if self.token.code == Token.COLON_EQ:
 			# to invoke assignmentStatement(), force <variable>name
@@ -760,7 +759,7 @@ class Parser:
 		if self.token.code in (Token.numericalLiteral, Token.stringLiteral):
 			self.token = self.scanner.GetNextToken()
 		elif self.token.code == Token.ID:
-			self.table.findSymbol(self.token.name)
+			self.table.findSymbol(self.token.value)
 			self.name()
 		elif self.token.code == Token.PARENTHESIS_OPEN:
 			self.token = self.scanner.GetNextToken()

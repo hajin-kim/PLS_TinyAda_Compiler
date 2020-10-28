@@ -40,6 +40,7 @@ class SymbolTable(object):
 		Returns:
 			[SymbolEntry, None] -- the new entry instance
 		"""
+		name = name.lower()
 		if name in [entry.name for entry in self.stack[-1]]:
 			self.chario.printError("redefinition of already defined identifier")
 			return None
@@ -59,11 +60,12 @@ class SymbolTable(object):
 		Returns:
 			[SymbolEntry, None] -- the entry found
 		"""
-		for scope in self.stack.reverse():
+		name = name.lower()
+		for scope in self.stack[::-1]:
 			for entry in scope:
 				if name == entry.name:
 					return entry
-		self.chario.printError("undefined identifier was used")
+		self.chario.PrintErrorMessage("undefined identifier [" + name + "] was used")
 		return None
 
 

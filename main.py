@@ -7,7 +7,7 @@ from Parser import Parser
 if __name__ == "__main__":
 	# FILE_NAME = input("Input the file name: ")	# submission code
 	FILE_NAME = "./sample_input/"	# DEV code
-	for name in ("testcase1.ada", "testcase2.ada", "testcase3.ada"):
+	for name in ("testcase1.ada", "testcase2.ada", "testcase3.ada")[0:1]:
 		print(name)
 		chario = Chario(FILE_NAME+name)	# link the input source file
 		scanner = Scanner(chario)
