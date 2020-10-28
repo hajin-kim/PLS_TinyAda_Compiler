@@ -1,11 +1,11 @@
 class SymbolEntry(object):
 	"""docstring for SymbolEntry"""
 
-	CONST = "const"
-	VAR = "var"
+	CONST = "constant"
+	VAR = "variable"
 	TYPE = "type"
-	PROC = "proc"
-	PARAM = "param"
+	PROC = "procedure"
+	PARAM = "parameter"
 
 	def __init__(self, name, role=None, value=None):
 		super(SymbolEntry, self).__init__()

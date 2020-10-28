@@ -47,17 +47,25 @@ class Parser:
 
 
 	def pushSymbols(self, identifierList, role=None):
+		"""
+		push identifiers in iterable into the table stack
+		
+		Arguments:
+			identifierList {[iterable]} -- container of identifier name strings
+		
+		Keyword Arguments:
+			role {[str, None]} -- SymbolEntry role constants, optional (default: {None})
+		"""
 		for identifier in identifierList:
-			if self.table.enterSymbol(identifier, role) is None:
-				////
+			self.table.enterSymbol(identifier, role):
 
 
-	def setRole(self, identifierList, role):
-		for identifier in identifierList:
-			entry = self.table.findSymbol(identifier)
-			if entry is None:
-				////
-			entry.role = role
+	# def setRole(self, identifierList, role):
+	# 	for identifier in identifierList:
+	# 		entry = self.table.findSymbol(identifier)
+	# 		if entry is None:
+	# 			////
+	# 		entry.role = role
 
 
 	def ignore_newlines(self):
@@ -120,6 +128,19 @@ class Parser:
 			self.ignore_newlines()
 
 
+	def acceptRole(self, identifier, expected):
+		"""
+		accept the identifier is expected
+		
+		Arguments:
+			identifier {str} -- name of the identifier
+			expected {str} -- SymbolEntry role constants
+		"""
+		entry = self.table.findSymbol(identifier)
+		if (not entry is None and entry.role != expected):
+			self.chario.PrintErrorMessage(entry.name + ": expected " + expected + " identifier, not " + entry.role)
+		self.token = self.scanner.GetNextToken()
+
 
 	def fatalError(self, error_message):
 		"""
@@ -130,7 +151,7 @@ class Parser:
 		"""
 		self.chario.PrintErrorMessage(error_message)
 		self.discard_tokens()
-		raise RuntimeError("Fatal error: " + error_message)	# TODO: check the error message format
+		raise RuntimeError("Fatal error: " + error_message)
 
 
 	def subprogramBody(self):
@@ -138,8 +159,9 @@ class Parser:
 		Check whole subprogram matches to EBNF grammar for TinyAda
 		"""
 
+		procedure_name = None
 		try:
-			self.subprogramSpecification()
+			procedure_name = self.subprogramSpecification()
 			self.accept(Token.IS,
 						"\'" + Token.IS + "\' expected")
 		except RuntimeError as e:
@@ -166,7 +188,13 @@ class Parser:
 			self.accept(Token.END,
 						"\'" + Token.END + "\' expected")
 			self.table.exitScope()
-			if self.token.code == Token.ID:	# TODO: force <procedure>identifier
+
+			# force <procedure>identifier
+			if self.token.code == Token.ID:
+				identifier = self.token.name
+				self.acceptRole(identifier, SymbolEntry.PROC)
+				if identifier != procedure_name:
+					self.chario.PrintErrorMessage(entry.name + ": expected " + procedure_name)
 				self.token = self.scanner.GetNextToken()
 
 			self.accept(Token.SEMICOLON, 
@@ -292,7 +320,9 @@ class Parser:
 			self.arrayTypeDefinition()
 		elif self.token.code == Token.RANGE:
 			self.range()
-		elif self.token.code == Token.ID:	# TODO: force <type>name
+		elif self.token.code == Token.ID:
+			# force <type>name
+			self.acceptRole(self.token.name, SymbolEntry.TYPE)
 			self.name()
 		else:
 			self.fatalError("expected either an opening parenthesis, an array,"+\
@@ -321,7 +351,9 @@ class Parser:
 		"""
 		if self.token.code == Token.RANGE:
 			self.range()
-		elif self.token.code == Token.ID:	# TODO: force <type>name
+		elif self.token.code == Token.ID:
+			# force <type>name
+			self.acceptRole(self.token.name, SymbolEntry.TYPE)
 			self.name()
 		else:
 			self.fatalError("error in indexing")
@@ -359,7 +391,9 @@ class Parser:
 					"\'" + Token.PARENTHESIS_CLOSE + "\' expected")
 		self.accept(Token.OF,
 					"\'" + Token.OF + "\' expected")
-		self.name()	# TODO: force <type>name
+		# force <type>name
+		self.acceptRole(self.token.name, SymbolEntry.TYPE)
+		self.name()
 
 
 	def subprogramSpecification(self):
@@ -377,6 +411,7 @@ class Parser:
 		self.table.enterScope()	# TODO
 		if self.token.code == "(":	# TODO: note
 			self.formalPart()
+		return identifier
 
 
 	def formalPart(self):
@@ -405,7 +440,9 @@ class Parser:
 		self.accept(Token.COLON,
 					"\'" + Token.COLON + "\' expected")
 		self.mode()
-		self.name()	# TODO: force <type>name
+		# force <type>name
+		self.acceptRole(self.token.name, SymbolEntry.TYPE)
+		self.name()
 		self.pushSymbols(identifiers, SymbolEntry.PARAM)
 
 
@@ -468,12 +505,15 @@ class Parser:
 		this function first parsing name. Then check the token is assignmentStatement
 		or procedureCallStatement and call declaration function
 		"""
-		# TODO: to invoke procedureStatement(), force <procedure>name
-		# TODO: to invoke assignmentStatement(), force <variable>name
+		identifier = self.token.name
 		self.name()
 		if self.token.code == Token.COLON_EQ:
+			# to invoke assignmentStatement(), force <variable>name
+			self.acceptRole(identifier, SymbolEntry.VAR)
 			self.assignmentStatement()
 		else:
+			# to invoke procedureStatement(), force <procedure>name
+			self.acceptRole(identifier, SymbolEntry.PROC)
 			self.procedureCallStatement()
 
 
@@ -720,6 +760,7 @@ class Parser:
 		if self.token.code in (Token.numericalLiteral, Token.stringLiteral):
 			self.token = self.scanner.GetNextToken()
 		elif self.token.code == Token.ID:
+			self.table.findSymbol(self.token.name)
 			self.name()
 		elif self.token.code == Token.PARENTHESIS_OPEN:
 			self.token = self.scanner.GetNextToken()

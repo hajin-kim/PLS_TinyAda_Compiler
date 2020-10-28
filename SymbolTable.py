@@ -41,7 +41,7 @@ class SymbolTable(object):
 			[SymbolEntry, None] -- the new entry instance
 		"""
 		if name in [entry.name for entry in self.stack[-1]]:
-			self.chario.printError("already def.ed")
+			self.chario.printError("redefinition of already defined identifier")
 			return None
 		newEntry = SymbolEntry(name, role)
 		self.stack[-1].append(newEntry)
@@ -63,7 +63,7 @@ class SymbolTable(object):
 			for entry in scope:
 				if name == entry.name:
 					return entry
-		self.chario.printError("not def.ed")
+		self.chario.printError("undefined identifier was used")
 		return None
 
 
