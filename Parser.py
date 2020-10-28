@@ -1,6 +1,8 @@
 from Token import Token
 from Chario import Chario
 from Scanner import Scanner
+from SymbolTable import SymbolTable
+from SymbolEntry import SymbolEntry
 
 
 class Parser:
@@ -24,6 +26,15 @@ class Parser:
 		# should implement handles
 		#self.initHandles()
 		self.token = scanner.GetNextToken()
+		self.table = SymbolTable()
+
+		# init SymbolTable
+		self.table.enterScope()
+		self.table.enterSymbol("BOOLEAN", SymbolEntry.TYPE)
+		self.table.enterSymbol("CHAR", SymbolEntry.TYPE)
+		self.table.enterSymbol("INTEGER", SymbolEntry.TYPE)
+		self.table.enterSymbol("TRUE", SymbolEntry.CONST)
+		self.table.enterSymbol("FALSE", SymbolEntry.CONST)
 
 
 	def parse(self):
@@ -33,6 +44,20 @@ class Parser:
 		self.subprogramBody()
 		# accept EOF: check if extra symbols after logical end of program exist
 		#self.accept(Token.EOF)
+
+
+	def pushSymbols(self, identifierList, role=None):
+		for identifier in identifierList:
+			if self.table.enterSymbol(identifier, role) is None:
+				////
+
+
+	def setRole(self, identifierList, role):
+		for identifier in identifierList:
+			entry = self.table.findSymbol(identifier)
+			if entry is None:
+				////
+			entry.role = role
 
 
 	def ignore_newlines(self):
@@ -140,6 +165,7 @@ class Parser:
 			# print("hahahoho")
 			self.accept(Token.END,
 						"\'" + Token.END + "\' expected")
+			self.table.exitScope()
 			if self.token.code == Token.ID:	# TODO: force <procedure>identifier
 				self.token = self.scanner.GetNextToken()
 
@@ -181,13 +207,15 @@ class Parser:
 		Then check the token is number declaration Or Object declaration 
 		and call declaration function
 		"""
-		self.identifierList()
+		identifiers = self.identifierList()
 		self.accept(Token.COLON,
 					"\'" + Token.COLON + "\' expected")
 		if self.token.code == Token.CONSTANT:
 			self.numberDeclaration()
+			self.pushSymbols(identifiers, SymbolEntry.CONST)
 		else:
 			self.objectDeclaration()
+			self.pushSymbols(identifiers, SymbolEntry.VAR)
 
 
 	def objectDeclaration(self):
@@ -218,12 +246,18 @@ class Parser:
 		
 		identifierList = identifier { "," identifier }
 		"""
+		identifiers = []
+
+		identifiers.append(self.token.name)
 		self.accept(Token.ID,
 					"identifier expected")
 		while self.token.code == Token.COMMA:
 			self.token = self.scanner.GetNextToken()
+			identifiers.append(self.token.name)
 			self.accept(Token.ID,
 						"identifier expected")
+
+		return identifiers
 
 
 	def typeDeclaration(self):
@@ -234,6 +268,7 @@ class Parser:
 		"""
 		self.accept(Token.TYPE,
 					"\'" + Token.TYPE + "\' expected")
+		identifier = self.token.name
 		self.accept(Token.ID,
 					"identifier expected")
 		self.accept(Token.IS,
@@ -241,6 +276,7 @@ class Parser:
 		self.typeDefinition()
 		self.accept(Token.SEMICOLON,
 					"\'" + Token.SEMICOLON + "\' expected")
+		self.pushSymbols((identifier), SymbolEntry.TYPE)
 
 
 	def typeDefinition(self):
@@ -299,9 +335,10 @@ class Parser:
 		"""
 		self.accept(Token.PARENTHESIS_OPEN,
 					"\'" + Token.PARENTHESIS_OPEN + "\' expected")
-		self.identifierList()
+		identifiers = self.identifierList()
 		self.accept(Token.PARENTHESIS_CLOSE,
 					"\'" + Token.PARENTHESIS_CLOSE + "\' expected")
+		self.table.pushSymbols(identifiers, SymbolEntry.CONST)
 
 
 	def arrayTypeDefinition(self):
@@ -333,8 +370,11 @@ class Parser:
 		"""
 		self.accept(Token.PROC,
 					"procedure expected")
+		identifier = self.token.name
 		self.accept(Token.ID,
-					"identifier expected")
+					"identifier expected")	# TODO: enter symbol of procedure identifier
+		self.table.enterSymbol(identifier, SymbolEntry.PROC)
+		self.table.enterScope()	# TODO
 		if self.token.code == "(":	# TODO: note
 			self.formalPart()
 
@@ -361,11 +401,12 @@ class Parser:
 		
 		parameterSpecification = identifierList ":" mode <type>name
 		"""
-		self.identifierList()
+		identifiers = self.identifierList()
 		self.accept(Token.COLON,
 					"\'" + Token.COLON + "\' expected")
 		self.mode()
 		self.name()	# TODO: force <type>name
+		self.pushSymbols(identifiers, SymbolEntry.PARAM)
 
 
 	def mode(self):
