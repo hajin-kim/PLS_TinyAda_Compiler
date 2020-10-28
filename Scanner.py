@@ -13,6 +13,22 @@ class Scanner:
 		self.chario = chario
 
 
+	def StringToken(self):
+		"""
+		Scans a string literal surrounded by \", e.g. "hahahoho"
+		"""
+		# remove first \"
+		self.chario.GetNextChar()
+
+		result = ""
+		while self.chario.PeekNextChar() != "\"":
+			result += self.chario.GetNextChar()
+
+		# remove last \"
+		self.chario.GetNextChar()
+		return Token(Const.stringLiteral, result)
+
+
 	def IntegerToken(self):
 		"""
 		Scans an integer value, which is a series of digits
@@ -99,6 +115,8 @@ class Scanner:
 		if nextChar == Const.NEWLINE:
 			self.chario.GetNextChar()
 			return Token(Const.NEWLINE, None)
+		elif nextChar == "\"":
+			return self.StringToken()
 		elif nextChar.isalpha():
 			return self.AlphabeticToken()
 		elif nextChar.isdigit():

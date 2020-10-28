@@ -6,6 +6,8 @@ procedure TEST is
 	type ROW_INDEX is range 1..ROW_MAX;
 	type MATRIX is array(COLUMN_INDEX, ROW_INDEX) of INTEGER;
 
+	"haha"
+
 	A : MATRIX;
 	I : INTEGER;
 
