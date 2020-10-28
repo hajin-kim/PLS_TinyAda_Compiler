@@ -48,9 +48,9 @@ class Parser:
 			# give up parsing the line with an error by discarding all trailling tokens until a newline character
 			message = "trailing tokens: " + str(self.token) + " "
 			
-			if self.token.code != Token.NEWLINE:
+			if self.token.code not in (Token.NEWLINE, Token.EOF):
 				self.token = self.scanner.GetNextToken()
-				while self.token.code != Token.NEWLINE:
+				while self.token.code not in (Token.NEWLINE, Token.EOF):
 					message += str(self.token) + " "
 					self.token = self.scanner.GetNextToken()
 					
@@ -74,7 +74,7 @@ class Parser:
 		error_message = "expected [" + expected + "] but " + str(self.token) + " was detected"
 
 		# these tokens always appear that the end of a line
-		line_terminating_tokens = (Token.IS, Token.LOOP, Token.SEMICOLON)
+		line_terminating_tokens = (Token.IS, Token.LOOP, Token.SEMICOLON, Token.BEGIN, Token.THEN)
 
 		# if the last token of this line was an unexpected one,
 		# do not remove that newline to preserve the next line's tokens
@@ -82,13 +82,13 @@ class Parser:
 		if self.token.code == Token.NEWLINE and expected in line_terminating_tokens:
 			self.fatalError(error_message)
 		
-
 		self.ignore_newlines()
 
 		if self.token.code != expected:
 
 			# raise error!
 			self.fatalError(error_message)
+		# print("hahahoho")
 
 		self.token = self.scanner.GetNextToken()
 		if expected in line_terminating_tokens:
@@ -137,13 +137,17 @@ class Parser:
 			print("continue parsing from [end] of subprogram body\n")
 
 		try:
+			# print("hahahoho")
 			self.accept(Token.END,
 						"\'" + Token.END + "\' expected")
 			if self.token.code == Token.ID:	# TODO: force <procedure>identifier
 				self.token = self.scanner.GetNextToken()
+
 			self.accept(Token.SEMICOLON, 
 						"semicolon expected")
 		except RuntimeError as e:
+			# print("hahahoho")
+
 			print("stop parsing subprogram body\n")
 
 
@@ -383,7 +387,7 @@ class Parser:
 		sequenceOfStatements = statement { statement }
 		"""
 		self.statement()
-		while self.token.code not in (Token.END, Token.ELSIF, Token.ELSE):	# TODO: should be implemented -> done
+		while self.token.code not in (Token.END, Token.ELSIF, Token.ELSE, Token.EOF):	# TODO: should be implemented -> done
 			self.statement()
 
 

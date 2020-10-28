@@ -5,9 +5,6 @@ from Parser import Parser
 
 
 if __name__ == "__main__":
-	# <<<<<<"""
-	# plz refer ./sample_input/endif.ada
-	# """>>>>>>
 	# FILE_NAME = input("Input the file name: ")	# submission code
 	FILE_NAME = "./sample_input/"	# DEV code
 	for name in ("testcase1.ada", "testcase2.ada", "testcase3.ada"):
@@ -18,10 +15,19 @@ if __name__ == "__main__":
 		# do syntax analysis
 		parser.subprogramBody()
 	# print("DONE")
-	
-	# while True:
-	# 	peek = chario.PeekNextChar()
-	# 	print("Peek: " + peek)
+		
+		# while True:
+		# 	token = scanner.GetNextToken()
+		# 	if token.code == Token.EOF:
+		# 		break
+		# print("haha")
+		# for i in range(3) :
+		# 	token = scanner.GetNextToken()
+		# 	print(token)
+		# print("hoho")
+
+		# peek = chario.PeekNextChar()
+		# print("Peek: " + peek)
 	# 	if peek != "EOF":
 	# 		print(chario.GetNextChar())
 	# 	else:
