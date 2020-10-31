@@ -21,7 +21,7 @@ procedure TEST is
 				Y(I, J) := X;
 				J := J + 1;
 				end loop;
-				else J := J + 1;
+				print(I);
 			I := I + 1;
 			end loop;
 		end INIT_MATRIX;

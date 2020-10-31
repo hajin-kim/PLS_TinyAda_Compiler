@@ -4,10 +4,19 @@ from Scanner import Scanner
 from Parser import Parser
 
 
-if __name__ == "__main__":
-	# FILE_NAME = input("Input the file name: ")	# submission code
-	FILE_NAME = "./sample_input/"	# DEV code
-	for name in ("testcase1.ada", "testcase2.ada", "testcase3.ada")[0:1]:
+def main():
+	# submission code
+	# FILE_NAME = input("Input the file name: ")
+	# chario = Chario(FILE_NAME+name)	# link the input source file
+	# scanner = Scanner(chario)
+	# parser = Parser(chario, scanner)
+	# # do syntax analysis
+	# parser.subprogramBody()
+	
+	# DEV code
+	FILE_NAME = "./sample_input/"	
+	# for name in ("testcase1.ada", "testcase2.ada", "testcase3.ada")[0:3]:
+	for name in ["sample_edit.ada"]:
 		print(name)
 		chario = Chario(FILE_NAME+name)	# link the input source file
 		scanner = Scanner(chario)
@@ -61,4 +70,10 @@ if __name__ == "__main__":
 # 			break
 # 		else:
 # 			print(c)
+# 			
+
+
+
+if __name__ == "__main__":
+	main()
 

@@ -42,7 +42,7 @@ class SymbolTable(object):
 		"""
 		name = name.lower()
 		if name in [entry.name for entry in self.stack[-1]]:
-			self.chario.printError("redefinition of already defined identifier")
+			self.chario.PrintErrorMessage("redefinition of already defined identifier [" + name + "]")
 			return None
 		newEntry = SymbolEntry(name, role)
 		self.stack[-1].append(newEntry)

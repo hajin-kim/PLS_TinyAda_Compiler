@@ -35,6 +35,8 @@ class Parser:
 		self.table.enterSymbol("INTEGER", SymbolEntry.TYPE)
 		self.table.enterSymbol("TRUE", SymbolEntry.CONST)
 		self.table.enterSymbol("FALSE", SymbolEntry.CONST)
+		# print function
+		self.table.enterSymbol("PRINT", SymbolEntry.PROC)
 
 
 	def parse(self):
@@ -138,6 +140,8 @@ class Parser:
 		"""
 		entry = self.table.findSymbol(identifier)
 		if (not entry is None and entry.role != expected):
+			if expected == SymbolEntry.VAR and entry.role == SymbolEntry.PARAM:
+				return
 			self.chario.PrintErrorMessage(entry.name + ": expected " + expected + " identifier, not " + entry.role)
 
 
@@ -303,7 +307,7 @@ class Parser:
 		self.typeDefinition()
 		self.accept(Token.SEMICOLON,
 					"\'" + Token.SEMICOLON + "\' expected")
-		self.pushSymbols((identifier), SymbolEntry.TYPE)
+		self.table.enterSymbol(identifier, SymbolEntry.TYPE)
 
 
 	def typeDefinition(self):
@@ -510,6 +514,8 @@ class Parser:
 			# to invoke assignmentStatement(), force <variable>name
 			self.acceptRole(identifier, SymbolEntry.VAR)
 			self.assignmentStatement()
+		elif identifier == "print":
+			self.printProcedureCallStatement()
 		else:
 			# to invoke procedureStatement(), force <procedure>name
 			self.acceptRole(identifier, SymbolEntry.PROC)
@@ -652,6 +658,19 @@ class Parser:
 					"semicolon expected")
 
 
+	def printProcedureCallStatement(self):
+		if self.token.code == Token.PARENTHESIS_OPEN:
+			params = self.actualParameterPart()
+			for param in params:
+				if param.__class__ == SymbolEntry.__class__:
+					print(SymbolEntry.value, end=' ')
+				else:
+					print(param, end=' ')
+		print()
+		self.accept(Token.SEMICOLON,
+					"semicolon expected")
+
+
 	def actualParameterPart(self):
 		"""
 		check the statement is in the same format as the EBNF of Tinyada,
@@ -718,7 +737,7 @@ class Parser:
 		self.term()
 		while self.token.code in Token.addingOperator:
 			self.token = self.scanner.GetNextToken()
-			self.term();
+			self.term()
 
 
 	def term(self):
