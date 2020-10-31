@@ -33,10 +33,9 @@ class Parser:
 		self.table.enterSymbol("BOOLEAN", SymbolEntry.TYPE)
 		self.table.enterSymbol("CHAR", SymbolEntry.TYPE)
 		self.table.enterSymbol("INTEGER", SymbolEntry.TYPE)
-		self.table.enterSymbol("TRUE", SymbolEntry.CONST)
-		self.table.enterSymbol("FALSE", SymbolEntry.CONST)
-		# print function
 		self.table.enterSymbol("PRINT", SymbolEntry.PROC)
+		self.table.enterSymbol("TRUE", SymbolEntry.CONST, True)
+		self.table.enterSymbol("FALSE", SymbolEntry.CONST, False)
 
 
 	def parse(self):
@@ -48,7 +47,7 @@ class Parser:
 		#self.accept(Token.EOF)
 
 
-	def pushSymbols(self, identifierList, role=None):
+	def pushSymbols(self, identifierList, role=None, value=None):
 		"""
 		push identifiers in iterable into the table stack
 		
@@ -59,7 +58,7 @@ class Parser:
 			role {[str, None]} -- SymbolEntry role constants, optional (default: {None})
 		"""
 		for identifier in identifierList:
-			self.table.enterSymbol(identifier, role)
+			self.table.enterSymbol(identifier, role, value)
 
 
 	# def setRole(self, identifierList, role):
@@ -242,8 +241,8 @@ class Parser:
 		self.accept(Token.COLON,
 					"\'" + Token.COLON + "\' expected")
 		if self.token.code == Token.CONSTANT:
-			self.numberDeclaration()
-			self.pushSymbols(identifiers, SymbolEntry.CONST)
+			value = self.numberDeclaration()
+			self.pushSymbols(identifiers, SymbolEntry.CONST, value)
 		else:
 			self.objectDeclaration()
 			self.pushSymbols(identifiers, SymbolEntry.VAR)
@@ -266,9 +265,11 @@ class Parser:
 					"\'" + "constant" + "\' expected")
 		self.accept(Token.COLON_EQ,
 					"\'" + Token.COLON_EQ + "\' expected")
-		self.expression()	# TODO: force <static>expression
+		value = self.expression()	# TODO: force <static>expression
 		self.accept(Token.SEMICOLON,
 					"\'" + Token.SEMICOLON + "\' expected")
+
+		return value
 
 
 	def identifierList(self):
@@ -702,15 +703,17 @@ class Parser:
 		
 		expression = relation { "and" relation } | { "or" relation }
 		"""
-		self.relation()
+		value = self.relation()
 		if self.token.code == Token.AND:
 			while self.token.code == Token.AND:
 				self.token = self.scanner.GetNextToken()
-				self.relation()
+				value = value and self.relation()
 		elif self.token.code == Token.OR:
 			while self.token.code == Token.OR:
 				self.token = self.scanner.GetNextToken()
-				self.relation()
+				value = value or self.relation()
+
+		return value
 
 
 	def relation(self):
@@ -719,10 +722,15 @@ class Parser:
 		
 		relation = simpleExpression [ relationalOperator simpleExpression ]
 		"""
-		self.simpleExpression()
+		value = self.simpleExpression()
 		if self.token.code in Token.relationalOperator:
+			operation = self.token.code
+
 			self.token = self.scanner.GetNextToken()
-			self.simpleExpression()
+			operand = self.simpleExpression()
+			# TODO: handle relational operation between value and operand
+
+		return value
 
 
 	def simpleExpression(self):
@@ -732,12 +740,27 @@ class Parser:
 		simpleExpression =
 				[ unaryAddingOperator ] term { binaryAddingOperator term }
 		"""
+		sign = None
 		if self.token.code in Token.addingOperator:
+			if self.token.code == Token.PLUS:
+				sign = 1
+			else:
+				sign = -1
 			self.token = self.scanner.GetNextToken()
-		self.term()
+		value = self.term()
+		if sign != None:
+			value = value * sign
 		while self.token.code in Token.addingOperator:
+			operation = self.token.code
+
 			self.token = self.scanner.GetNextToken()
-			self.term()
+			operand = self.term()
+			if operation == Token.PLUS:
+				value = value + operand
+			else:
+				value = value - operand
+
+		return value
 
 
 	def term(self):
@@ -746,10 +769,20 @@ class Parser:
 		
 		term = factor { multiplyingOperator factor }
 		"""
-		self.factor()
+		value = self.factor()
 		while self.token in Token.multiplyingOperator:
+			operation = self.token.code
+
 			self.token = self.scanner.GetNextToken()
-			self.factor()
+			operand = self.factor()
+			if operation == Token.MUL:
+				value = value * operand
+			elif operation == Token.DIV:
+				value = value / operand
+			else:
+				value = value % operand
+		
+		return value
 
 
 	def factor(self):
@@ -759,14 +792,17 @@ class Parser:
 		factor = primary [ "**" primary ] | "not" primary
 		"""
 		# not
+		value = None
 		if self.token.code == Token.NOT:
 			self.token = self.scanner.GetNextToken()
-			self.primary()
+			value = not self.primary()
 		else:
-			self.primary()
+			value = self.primary()
 			if self.token.code == Token.SQUARE:
 				self.token = self.scanner.GetNextToken()
-				self.primary()
+				value = value ** self.primary()
+
+		return value
 
 
 	def primary(self):
@@ -775,19 +811,26 @@ class Parser:
 		
 		primary = numericLiteral | stringLiteral | name | "(" expression ")"
 		"""
+		value = None
 		if self.token.code in (Token.numericalLiteral, Token.stringLiteral):
+			value = self.token.value
+			if self.token.code is Token.numericalLiteral:
+				value = int(value)
 			self.token = self.scanner.GetNextToken()
 		elif self.token.code == Token.ID:
-			self.table.findSymbol(self.token.value)
+			entry = self.table.findSymbol(self.token.value)
+			value = entry.value
 			self.name()
 		elif self.token.code == Token.PARENTHESIS_OPEN:
 			self.token = self.scanner.GetNextToken()
-			self.expression()
+			value = self.expression()
 			self.accept(Token.PARENTHESIS_CLOSE,
 						"\')\' expected")
 		else:
 			self.fatalError("expected either a numeric literal, an identifier, or an opening parenthesis but " + 
 				str(self.token) + " was detected")
+
+		return value
 
 
 	def name(self):
