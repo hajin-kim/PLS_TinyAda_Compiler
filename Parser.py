@@ -177,6 +177,7 @@ class Parser:
 		try:
 			self.accept(Token.BEGIN,
 						"\'" + Token.BEGIN + "\' expected")
+			# print("hahahoho")
 		except RuntimeError as e:
 			print("continue parsing from sequence of statement of subprogram body\n")
 
@@ -341,10 +342,14 @@ class Parser:
 		"""
 		self.accept(Token.RANGE,
 					"\'" + Token.IS + "\' expected")
+		# print(" T: entering")
 		self.simpleExpression()
+		# print(" T: breaking")
 		self.accept(Token.DOT_DOT,
 					"\'" + Token.DOT_DOT + "\' expected")
 		self.simpleExpression()
+		# print(" T: escaping")
+
 
 
 	def index(self):
@@ -514,8 +519,9 @@ class Parser:
 		if self.token.code == Token.COLON_EQ:
 			# to invoke assignmentStatement(), force <variable>name
 			self.acceptRole(identifier, SymbolEntry.VAR)
-			self.assignmentStatement()
+			self.table.findSymbol(identifier).value = self.assignmentStatement()
 		elif identifier == "print":
+			# self.token = self.scanner.GetNextToken()
 			self.printProcedureCallStatement()
 		else:
 			# to invoke procedureStatement(), force <procedure>name
@@ -555,9 +561,10 @@ class Parser:
 		"""
 		self.accept(Token.COLON_EQ,
 					":= expected")
-		self.expression()
+		ret = self.expression()
 		self.accept(Token.SEMICOLON,
 					"semicolon expected")
+		return ret
 
 
 	def ifStatement(self):
@@ -660,12 +667,14 @@ class Parser:
 
 
 	def printProcedureCallStatement(self):
+		# print("call print")
 		if self.token.code == Token.PARENTHESIS_OPEN:
+			# print("ongoing")
 			params = self.actualParameterPart()
 			for param in params:
-				if param.__class__ == SymbolEntry.__class__:
-					print(SymbolEntry.value, end=' ')
-				else:
+				# if param.__class__ == SymbolEntry.__class__:
+				# 	print(SymbolEntry.value, end=' ')
+				# else:
 					print(param, end=' ')
 		print()
 		self.accept(Token.SEMICOLON,
@@ -680,12 +689,16 @@ class Parser:
 		"""
 		self.accept(Token.PARENTHESIS_OPEN,
 					"open parenthesis expected")
-		self.expression()
+		ret = []
+		# input("t")
+		ret.append(self.expression())
+		# input("t")
 		while self.token.code == Token.COMMA:
 			self.token = self.scanner.GetNextToken()
-			self.expression()
+			ret.append(self.expression())
 		self.accept(Token.PARENTHESIS_CLOSE,
 					"close parenthesis expected")
+		return ret
 
 
 	def condition(self):
@@ -713,6 +726,7 @@ class Parser:
 				self.token = self.scanner.GetNextToken()
 				value = value or self.relation()
 
+		# print(" T: expr result", value)
 		return value
 
 
@@ -748,13 +762,17 @@ class Parser:
 				sign = -1
 			self.token = self.scanner.GetNextToken()
 		value = self.term()
-		if sign != None:
+		if sign != None and value != None:
 			value = value * sign
 		while self.token.code in Token.addingOperator:
+			# print("call addition")
 			operation = self.token.code
 
 			self.token = self.scanner.GetNextToken()
 			operand = self.term()
+			if operand == None or value == None:
+				value = None
+				continue
 			if operation == Token.PLUS:
 				value = value + operand
 			else:
@@ -770,15 +788,18 @@ class Parser:
 		term = factor { multiplyingOperator factor }
 		"""
 		value = self.factor()
-		while self.token in Token.multiplyingOperator:
+		while self.token.code in Token.multiplyingOperator:
 			operation = self.token.code
 
 			self.token = self.scanner.GetNextToken()
 			operand = self.factor()
+			if operand == None or value == None:
+				value = None
+				continue
 			if operation == Token.MUL:
 				value = value * operand
 			elif operation == Token.DIV:
-				value = value / operand
+				value = value // operand
 			else:
 				value = value % operand
 		
@@ -795,12 +816,18 @@ class Parser:
 		value = None
 		if self.token.code == Token.NOT:
 			self.token = self.scanner.GetNextToken()
-			value = not self.primary()
+			value = self.primary()
+			if value != None:
+				value = not value
 		else:
 			value = self.primary()
 			if self.token.code == Token.SQUARE:
 				self.token = self.scanner.GetNextToken()
-				value = value ** self.primary()
+				operand = self.primary()
+				if operand == None or value == None:
+					value = None
+				else:
+					value = value ** operand
 
 		return value
 
@@ -817,10 +844,16 @@ class Parser:
 			if self.token.code is Token.numericalLiteral:
 				value = int(value)
 			self.token = self.scanner.GetNextToken()
+			# print(" T: literal", value)
 		elif self.token.code == Token.ID:
-			entry = self.table.findSymbol(self.token.value)
-			value = entry.value
-			self.name()
+			# print(self.token.value, "open")
+			entry = self.name()
+			# print(self.token.value, "close")
+
+			if entry != None:
+				value = entry.value
+				# print(" T: identifier", value)
+			
 		elif self.token.code == Token.PARENTHESIS_OPEN:
 			self.token = self.scanner.GetNextToken()
 			value = self.expression()
@@ -839,10 +872,14 @@ class Parser:
 		
 		name = identifier [ indexedComponent ]
 		"""
+		entry = self.table.findSymbol(self.token.value)
+		# print("running name")
 		self.accept(Token.ID,
 					"identifier expected")
-		if self.token.code == Token.PARENTHESIS_OPEN:	# TODO: resolve comment: indexedComponent
+		if (entry == None or entry.role != SymbolEntry.PROC) and self.token.code == Token.PARENTHESIS_OPEN:	# TODO: resolve comment: indexedComponent
+			# print("running indexedComponent")
 			self.indexedComponent()
+		return entry
 
 
 	def indexedComponent(self):

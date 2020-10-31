@@ -28,7 +28,7 @@ class SymbolTable(object):
 		self.stack.pop()
 
 
-	def enterSymbol(self, name, role=None):
+	def enterSymbol(self, name, role=None, value=None):
 		"""
 		If name is not already present, inserts an entry for it into the
 		table and returns that entry; otherwise, prints an error message
@@ -44,7 +44,7 @@ class SymbolTable(object):
 		if name in [entry.name for entry in self.stack[-1]]:
 			self.chario.PrintErrorMessage("redefinition of already defined identifier [" + name + "]")
 			return None
-		newEntry = SymbolEntry(name, role)
+		newEntry = SymbolEntry(name, role, value)
 		self.stack[-1].append(newEntry)
 		return newEntry
 

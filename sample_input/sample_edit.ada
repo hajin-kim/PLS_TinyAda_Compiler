@@ -21,12 +21,12 @@ procedure TEST is
 				Y(I, J) := X;
 				J := J + 1;
 				end loop;
-				print(I);
 			I := I + 1;
 			end loop;
 		end INIT_MATRIX;
 
 	begin
-	I := 1;
+	I := 11;
 	INIT_MATRIX(I, A);
+	print(I*3 / 4);
 	end TEST;
