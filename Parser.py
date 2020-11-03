@@ -33,6 +33,7 @@ class Parser:
 		self.table.enterSymbol("BOOLEAN", SymbolEntry.TYPE)
 		self.table.enterSymbol("CHAR", SymbolEntry.TYPE)
 		self.table.enterSymbol("INTEGER", SymbolEntry.TYPE)
+		self.table.enterSymbol("MATRIX", SymbolEntry.TYPE)
 		self.table.enterSymbol("PRINT", SymbolEntry.PROC)
 		self.table.enterSymbol("TRUE", SymbolEntry.CONST, True)
 		self.table.enterSymbol("FALSE", SymbolEntry.CONST, False)
