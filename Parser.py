@@ -541,7 +541,9 @@ class Parser:
 			self.printProcedureCallStatement()
 		else:
 			# to invoke procedureStatement(), force <procedure>name
-			self.acceptRole(identifier, SymbolEntry.PROC)
+			# self.acceptRole(identifier, SymbolEntry.PROC)
+			if entry != None and entry.role != SymbolEntry.PROC:
+				self.chario.PrintErrorMessage(entry.name + ": expected " + SymbolEntry.PROC + " identifier, not " + entry.role)
 			self.procedureCallStatement()
 
 
