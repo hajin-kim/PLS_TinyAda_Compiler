@@ -524,11 +524,18 @@ class Parser:
 		or procedureCallStatement and call declaration function
 		"""
 		identifier = self.token.value
-		self.name()
+		entry = self.name()
 		if self.token.code == Token.COLON_EQ:
 			# to invoke assignmentStatement(), force <variable>name
-			self.acceptRole(identifier, SymbolEntry.VAR)
-			self.table.findSymbol(identifier).value = self.assignmentStatement()
+			# self.acceptRole(identifier, SymbolEntry.VAR)
+			value = self.assignmentStatement()
+			if entry != None:
+				if entry.role not in (SymbolEntry.VAR, SymbolEntry.PARAM):
+					self.chario.PrintErrorMessage(\
+						entry.name + ": expected " + SymbolEntry.VAR + " or " +\
+						SymbolEntry.PARAM + " identifier, not " + entry.role)
+				else:
+					entry.value = value
 		elif identifier == "print":
 			# self.token = self.scanner.GetNextToken()
 			self.printProcedureCallStatement()
