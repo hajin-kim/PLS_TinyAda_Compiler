@@ -60,6 +60,9 @@ class SymbolTable(object):
 		Returns:
 			[SymbolEntry, None] -- the entry found
 		"""
+		if name == None:
+			return None
+			
 		name = name.lower()
 		for scope in self.stack[::-1]:
 			for entry in scope:
