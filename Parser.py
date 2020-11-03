@@ -365,8 +365,10 @@ class Parser:
 			self.range()
 		elif self.token.code == Token.ID:
 			# force <type>name
-			self.acceptRole(self.token.value, SymbolEntry.TYPE)
-			self.name()
+			# self.acceptRole(self.token.value, SymbolEntry.TYPE)
+			entry = self.name()
+			if entry != None and entry.role != SymbolEntry.TYPE:
+				self.chario.PrintErrorMessage(entry.name + ": expected " + SymbolEntry.TYPE + " identifier, not " + entry.role)
 		else:
 			self.fatalError("error in indexing")
 
@@ -404,8 +406,10 @@ class Parser:
 		self.accept(Token.OF,
 					"\'" + Token.OF + "\' expected")
 		# force <type>name
-		self.acceptRole(self.token.value, SymbolEntry.TYPE)
-		self.name()
+		# self.acceptRole(self.token.value, SymbolEntry.TYPE)
+		entry = self.name()
+		if entry != None and entry.role != SymbolEntry.TYPE:
+			self.chario.PrintErrorMessage(entry.name + ": expected " + SymbolEntry.TYPE + " identifier, not " + entry.role)
 
 
 	def subprogramSpecification(self):
@@ -453,8 +457,10 @@ class Parser:
 					"\'" + Token.COLON + "\' expected")
 		self.mode()
 		# force <type>name
-		self.acceptRole(self.token.value, SymbolEntry.TYPE)
-		self.name()
+		# self.acceptRole(self.token.value, SymbolEntry.TYPE)
+		entry = self.name()
+		if entry != None and entry.role != SymbolEntry.TYPE:
+			self.chario.PrintErrorMessage(entry.name + ": expected " + SymbolEntry.TYPE + " identifier, not " + entry.role)
 		self.pushSymbols(identifiers, SymbolEntry.PARAM)
 
 
