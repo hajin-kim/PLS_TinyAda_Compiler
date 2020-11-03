@@ -327,8 +327,10 @@ class Parser:
 			self.range()
 		elif self.token.code == Token.ID:
 			# force <type>name
-			self.acceptRole(self.token.value, SymbolEntry.TYPE)
-			self.name()
+			# self.acceptRole(self.token.value, SymbolEntry.TYPE)
+			entry = self.name()
+			if entry != None and entry.role != SymbolEntry.TYPE:
+				self.chario.PrintErrorMessage(entry.name + ": expected " + SymbolEntry.TYPE + " identifier, not " + entry.role)
 		else:
 			self.fatalError("expected either an opening parenthesis, an array,"+\
 			" a range, or an identifier but " + str(self.token) + " was detected")
