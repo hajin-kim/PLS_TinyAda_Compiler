@@ -27,6 +27,17 @@ procedure TEST is
 
 	begin
 	I := 11;
+
+	if I = 1 then
+		print(1);
+	elsif true then
+		print("haha hoho");
+	elsif false then
+		print(I > 10);
+	else
+		print(4+5);
+	end if;
+
 	INIT_MATRIX(I, A);
 	print(I*3 / 4);
 	end TEST;

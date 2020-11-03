@@ -124,7 +124,7 @@ class Parser:
 		error_message = "expected [" + expected + "] but " + str(self.token) + " was detected"
 
 		# these tokens always appear that the end of a line
-		line_terminating_tokens = (Token.IS, Token.LOOP, Token.SEMICOLON, Token.BEGIN, Token.THEN)
+		line_terminating_tokens = (Token.IS, Token.LOOP, Token.SEMICOLON, Token.BEGIN, Token.THEN, Token.ELSE)
 
 		# if the last token of this line was an unexpected one,
 		# do not remove that newline to preserve the next line's tokens
@@ -606,12 +606,12 @@ class Parser:
 		self.accept(Token.THEN)
 		self.sequenceOfStatements()
 		while self.token.code == Token.ELSIF:
-			self.token = self.scanner.GetNextToken()
+			self.accept(Token.ELSIF)
 			self.condition()
 			self.accept(Token.THEN)
 			self.sequenceOfStatements()
 		if self.token.code == Token.ELSE:
-			self.token = self.scanner.GetNextToken()
+			self.accept(Token.ELSE)
 			self.sequenceOfStatements()
 		self.accept(Token.END)
 		self.accept(Token.IF)
