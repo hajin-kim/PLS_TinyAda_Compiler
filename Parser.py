@@ -96,6 +96,21 @@ class Parser:
 
 			print(message)
 
+	
+	def calculate(self, lhs, rhs, operation):
+		"""
+		try to return operation(lhs, rhs), then return None if any exception happens
+
+		Arguments:
+			lhs - left hand operand
+			rhs - right hand operand
+			operation - a lambda with two parameter which does return a value
+		"""
+		try:
+			return operation(lhs, rhs)
+		except:
+			return None
+
 
 	def accept(self, expected):
 		"""
@@ -449,7 +464,7 @@ class Parser:
 		"""
 		identifiers = self.identifierList()
 		self.pushSymbols(identifiers, SymbolEntry.PARAM)
-		
+
 		self.accept(Token.COLON)
 		self.mode()
 		# force <type>name
@@ -717,11 +732,13 @@ class Parser:
 		if self.token.code == Token.AND:
 			while self.token.code == Token.AND:
 				self.token = self.scanner.GetNextToken()
-				value = value and self.relation()
+				operand = self.relation()
+				value = self.calculate(value, operand, (lambda lhs, rhs : lhs and rhs))
 		elif self.token.code == Token.OR:
 			while self.token.code == Token.OR:
 				self.token = self.scanner.GetNextToken()
-				value = value or self.relation()
+				operand = self.relation()
+				value = self.calculate(value, operand, (lambda lhs, rhs : lhs or rhs))
 
 		# print(" T: expr result", value)
 		return value
@@ -735,11 +752,18 @@ class Parser:
 		"""
 		value = self.simpleExpression()
 		if self.token.code in Token.relationalOperator:
-			operation = self.token.code
+			operation = {
+				Token.EQ : (lambda lhs, rhs : lhs == rhs),
+				Token.NE : (lambda lhs, rhs : lhs != rhs),
+				Token.LT : (lambda lhs, rhs : lhs < rhs),
+				Token.LE : (lambda lhs, rhs : lhs <= rhs),
+				Token.GT : (lambda lhs, rhs : lhs > rhs),
+				Token.GE : (lambda lhs, rhs : lhs >= rhs)
+			}[self.token.code]
 
 			self.token = self.scanner.GetNextToken()
 			operand = self.simpleExpression()
-			# TODO: handle relational operation between value and operand
+			value = self.calculate(value, operand, operation)
 
 		return value
 
@@ -753,27 +777,25 @@ class Parser:
 		"""
 		sign = None
 		if self.token.code in Token.addingOperator:
-			if self.token.code == Token.PLUS:
-				sign = 1
-			else:
-				sign = -1
+			sign = {
+				Token.PLUS : 1,
+				Token.MINUS : -1
+			}[self.token.code]
 			self.token = self.scanner.GetNextToken()
+
 		value = self.term()
-		if sign != None and value != None:
-			value = value * sign
+		if sign != None:
+			value = self.calculate(value, sign, lambda lhs, rhs : lhs * rhs)
+
 		while self.token.code in Token.addingOperator:
-			# print("call addition")
-			operation = self.token.code
+			operation = {
+				Token.PLUS : (lambda lhs, rhs : lhs + rhs),
+				Token.MINUS : (lambda lhs, rhs : lhs - rhs)
+			}[self.token.code]
 
 			self.token = self.scanner.GetNextToken()
 			operand = self.term()
-			if operand == None or value == None:
-				value = None
-				continue
-			if operation == Token.PLUS:
-				value = value + operand
-			else:
-				value = value - operand
+			value = self.calculate(value, operand, operation)
 
 		return value
 
@@ -786,19 +808,15 @@ class Parser:
 		"""
 		value = self.factor()
 		while self.token.code in Token.multiplyingOperator:
-			operation = self.token.code
+			operation = {
+				Token.MUL : (lambda lhs, rhs : lhs * rhs),
+				Token.DIV : (lambda lhs, rhs : lhs // rhs),
+				Token.MOD : (lambda lhs, rhs : lhs % rhs)
+			}[self.token.code]
 
 			self.token = self.scanner.GetNextToken()
 			operand = self.factor()
-			if operand == None or value == None:
-				value = None
-				continue
-			if operation == Token.MUL:
-				value = value * operand
-			elif operation == Token.DIV:
-				value = value // operand
-			else:
-				value = value % operand
+			value = self.calculate(value, operand, operation)
 		
 		return value
 
@@ -814,17 +832,13 @@ class Parser:
 		if self.token.code == Token.NOT:
 			self.token = self.scanner.GetNextToken()
 			value = self.primary()
-			if value != None:
-				value = not value
+			value = self.calculate(value, None, (lambda lhs, rhs : not lhs))
 		else:
 			value = self.primary()
 			if self.token.code == Token.SQUARE:
 				self.token = self.scanner.GetNextToken()
 				operand = self.primary()
-				if operand == None or value == None:
-					value = None
-				else:
-					value = value ** operand
+				value = self.calculate(value, operand, (lambda lhs, rhs : lhs ** rhs))
 
 		return value
 
