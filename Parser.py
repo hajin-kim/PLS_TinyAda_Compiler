@@ -666,11 +666,16 @@ class Parser:
 		if self.token.code == Token.PARENTHESIS_OPEN:
 			# print("ongoing")
 			params = self.actualParameterPart()
+			first = True
 			for param in params:
+				if first:
+					first = False
+				else:
+					print(end=' ')
 				# if param.__class__ == SymbolEntry.__class__:
 				# 	print(SymbolEntry.value, end=' ')
 				# else:
-					print(param, end=' ')
+				print(param, end='')
 		print()
 		self.accept(Token.SEMICOLON)
 
