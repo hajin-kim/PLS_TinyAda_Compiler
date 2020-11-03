@@ -97,7 +97,7 @@ class Parser:
 			print(message)
 
 
-	def accept(self, expected, error_message):
+	def accept(self, expected):
 		"""
 		accept the current token only with the expected code
 
@@ -165,8 +165,7 @@ class Parser:
 		procedure_name = None
 		try:
 			procedure_name = self.subprogramSpecification()
-			self.accept(Token.IS,
-						"\'" + Token.IS + "\' expected")
+			self.accept(Token.IS)
 		except RuntimeError as e:
 			print("continue parsing from declarative part of subprogram body\n")
 
@@ -176,8 +175,7 @@ class Parser:
 			print("continue parsing from [begin] of subprogram body\n")
 
 		try:
-			self.accept(Token.BEGIN,
-						"\'" + Token.BEGIN + "\' expected")
+			self.accept(Token.BEGIN)
 			# print("hahahoho")
 		except RuntimeError as e:
 			print("continue parsing from sequence of statement of subprogram body\n")
@@ -189,20 +187,27 @@ class Parser:
 
 		try:
 			# print("hahahoho")
-			self.accept(Token.END,
-						"\'" + Token.END + "\' expected")
+			self.accept(Token.END)
 			self.table.exitScope()
 
 			# force <procedure>identifier
 			if self.token.code == Token.ID:
 				identifier = self.token.value
 				self.acceptRole(identifier, SymbolEntry.PROC)
-				if identifier != procedure_name:
-					self.chario.PrintErrorMessage("unexpected [" + identifier + "], expected [" + procedure_name + "]")
+				if procedure_name == None:
+					self.chario.PrintErrorMessage(
+						"failed to check if [" + identifier + "] is valid "+\
+						"after procedure's END keyword, because the procedure's "+\
+						"name was not recognized properly due to an error in "+\
+						"subprogram specification")
+				elif identifier != procedure_name:
+					self.chario.PrintErrorMessage(
+						"unexpected name [" + identifier + "] was used after "+\
+						"END keyword in procedure [" + procedure_name + "]. "+\
+						"it should be equal to the procedure's name ")
 				self.token = self.scanner.GetNextToken()
 
-			self.accept(Token.SEMICOLON, 
-						"semicolon expected")
+			self.accept(Token.SEMICOLON)
 		except RuntimeError as e:
 			# print("hahahoho")
 
@@ -240,8 +245,7 @@ class Parser:
 		and call declaration function
 		"""
 		identifiers = self.identifierList()
-		self.accept(Token.COLON,
-					"\'" + Token.COLON + "\' expected")
+		self.accept(Token.COLON)
 		if self.token.code == Token.CONSTANT:
 			value = self.numberDeclaration()
 			self.pushSymbols(identifiers, SymbolEntry.CONST, value)
@@ -255,21 +259,17 @@ class Parser:
 		check the statement has typeDefinition and ";"
 		"""
 		self.typeDefinition()
-		self.accept(Token.SEMICOLON,
-					"\'" + Token.SEMICOLON + "\' expected")
+		self.accept(Token.SEMICOLON)
 
 
 	def numberDeclaration(self):
 		"""
 		check the statement has  "constant", ":=", <static>expression and ";"
 		"""
-		self.accept(Token.CONSTANT,
-					"\'" + "constant" + "\' expected")
-		self.accept(Token.COLON_EQ,
-					"\'" + Token.COLON_EQ + "\' expected")
+		self.accept(Token.CONSTANT)
+		self.accept(Token.COLON_EQ)
 		value = self.expression()	# TODO: force <static>expression
-		self.accept(Token.SEMICOLON,
-					"\'" + Token.SEMICOLON + "\' expected")
+		self.accept(Token.SEMICOLON)
 
 		return value
 
@@ -283,13 +283,11 @@ class Parser:
 		identifiers = []
 
 		identifiers.append(self.token.value)
-		self.accept(Token.ID,
-					"identifier expected")
+		self.accept(Token.ID)
 		while self.token.code == Token.COMMA:
 			self.token = self.scanner.GetNextToken()
 			identifiers.append(self.token.value)
-			self.accept(Token.ID,
-						"identifier expected")
+			self.accept(Token.ID)
 
 		return identifiers
 
@@ -300,16 +298,12 @@ class Parser:
 		
 		typeDeclaration = "type" identifier "is" typeDefinition ";"
 		"""
-		self.accept(Token.TYPE,
-					"\'" + Token.TYPE + "\' expected")
+		self.accept(Token.TYPE)
 		identifier = self.token.value
-		self.accept(Token.ID,
-					"identifier expected")
-		self.accept(Token.IS,
-					"\'" + Token.IS + "\' expected")
+		self.accept(Token.ID)
+		self.accept(Token.IS)
 		self.typeDefinition()
-		self.accept(Token.SEMICOLON,
-					"\'" + Token.SEMICOLON + "\' expected")
+		self.accept(Token.SEMICOLON)
 		self.table.enterSymbol(identifier, SymbolEntry.TYPE)
 
 
@@ -343,13 +337,11 @@ class Parser:
 		
 		range = "range " simpleExpression ".." simpleExpression
 		"""
-		self.accept(Token.RANGE,
-					"\'" + Token.IS + "\' expected")
+		self.accept(Token.RANGE)
 		# print(" T: entering")
 		self.simpleExpression()
 		# print(" T: breaking")
-		self.accept(Token.DOT_DOT,
-					"\'" + Token.DOT_DOT + "\' expected")
+		self.accept(Token.DOT_DOT)
 		self.simpleExpression()
 		# print(" T: escaping")
 
@@ -379,11 +371,9 @@ class Parser:
 		
 		enumerationTypeDefinition = "(" identifierList ")"
 		"""
-		self.accept(Token.PARENTHESIS_OPEN,
-					"\'" + Token.PARENTHESIS_OPEN + "\' expected")
+		self.accept(Token.PARENTHESIS_OPEN)
 		identifiers = self.identifierList()
-		self.accept(Token.PARENTHESIS_CLOSE,
-					"\'" + Token.PARENTHESIS_CLOSE + "\' expected")
+		self.accept(Token.PARENTHESIS_CLOSE)
 		self.table.pushSymbols(identifiers, SymbolEntry.CONST)
 
 
@@ -393,18 +383,14 @@ class Parser:
 		
 		arrayTypeDefinition = "array" "(" index { "," index } ")" "of" <type>name
 		"""
-		self.accept(Token.ARRAY,
-					"\'" + Token.ARRAY + "\' expected")
-		self.accept(Token.PARENTHESIS_OPEN,
-					"\'" + Token.PARENTHESIS_OPEN + "\' expected")
+		self.accept(Token.ARRAY)
+		self.accept(Token.PARENTHESIS_OPEN)
 		self.index()
 		while self.token.code == Token.COMMA:
 			self.token = self.scanner.GetNextToken()
 			self.index()
-		self.accept(Token.PARENTHESIS_CLOSE,
-					"\'" + Token.PARENTHESIS_CLOSE + "\' expected")
-		self.accept(Token.OF,
-					"\'" + Token.OF + "\' expected")
+		self.accept(Token.PARENTHESIS_CLOSE)
+		self.accept(Token.OF)
 		# force <type>name
 		# self.acceptRole(self.token.value, SymbolEntry.TYPE)
 		entry = self.name()
@@ -413,20 +399,31 @@ class Parser:
 
 
 	def subprogramSpecification(self):
+
 		"""
 		check the statement is in the same format as the EBNF of Tinyada,
 		
 		subprogramSpecification = "procedure" identifier [ formalPart ]
 		"""
-		self.accept(Token.PROC,
-					"procedure expected")
-		identifier = self.token.value
-		self.accept(Token.ID,
-					"identifier expected")	# TODO: enter symbol of procedure identifier
-		self.table.enterSymbol(identifier, SymbolEntry.PROC)
+		identifier = None
+		try:
+			self.accept(Token.PROC)
+			identifier = self.token.value
+			self.accept(Token.ID)	# TODO: enter symbol of procedure identifier
+			self.table.enterSymbol(identifier, SymbolEntry.PROC)
+		except RuntimeError as e:
+			# enterScope() must be called even if errors occur
+			# in order to keep the procedure's local
+			# identifiers inside its own scope
+			self.table.enterScope()
+
+			raise e
+
 		self.table.enterScope()	# TODO
+
 		if self.token.code == "(":	# TODO: note
 			self.formalPart()
+
 		return identifier
 
 
@@ -436,14 +433,12 @@ class Parser:
 		
 		formalPart = "(" parameterSpecification { ";" parameterSpecification } ")"
 		"""
-		self.accept(Token.PARENTHESIS_OPEN,
-					"\'" + Token.PARENTHESIS_OPEN + "\' expected")
+		self.accept(Token.PARENTHESIS_OPEN)
 		self.parameterSpecification()
 		while self.token.code == Token.SEMICOLON:
 			self.token = self.scanner.GetNextToken()
 			self.parameterSpecification()
-		self.accept(Token.PARENTHESIS_CLOSE,
-					"\'" + Token.PARENTHESIS_CLOSE + "\' expected")
+		self.accept(Token.PARENTHESIS_CLOSE)
 
 
 	def parameterSpecification(self):
@@ -453,15 +448,15 @@ class Parser:
 		parameterSpecification = identifierList ":" mode <type>name
 		"""
 		identifiers = self.identifierList()
-		self.accept(Token.COLON,
-					"\'" + Token.COLON + "\' expected")
+		self.pushSymbols(identifiers, SymbolEntry.PARAM)
+		
+		self.accept(Token.COLON)
 		self.mode()
 		# force <type>name
 		# self.acceptRole(self.token.value, SymbolEntry.TYPE)
 		entry = self.name()
 		if entry != None and entry.role != SymbolEntry.TYPE:
 			self.chario.PrintErrorMessage(entry.name + ": expected " + SymbolEntry.TYPE + " identifier, not " + entry.role)
-		self.pushSymbols(identifiers, SymbolEntry.PARAM)
 
 
 	def mode(self):
@@ -565,10 +560,8 @@ class Parser:
 		
 		nullStatement = "null" ";"
 		"""
-		self.accept(Token.NULL,
-					"null expected")
-		self.accept(Token.SEMICOLON,
-					"semicolon expected")
+		self.accept(Token.NULL)
+		self.accept(Token.SEMICOLON)
 
 
 	def assignmentStatement(self):
@@ -577,11 +570,9 @@ class Parser:
 		
 		assignmentStatement = <variable>name ":=" expression ";"
 		"""
-		self.accept(Token.COLON_EQ,
-					":= expected")
+		self.accept(Token.COLON_EQ)
 		ret = self.expression()
-		self.accept(Token.SEMICOLON,
-					"semicolon expected")
+		self.accept(Token.SEMICOLON)
 		return ret
 
 
@@ -595,27 +586,21 @@ class Parser:
  				[ "else" sequenceOfStatements ]
 				 "end" "if" ";"
 		"""
-		self.accept(Token.IF,
-					"if expected")
+		self.accept(Token.IF)
 		self.condition()
-		self.accept(Token.THEN,
-					"then expected")
+		self.accept(Token.THEN)
 		self.sequenceOfStatements()
 		while self.token.code == Token.ELSIF:
 			self.token = self.scanner.GetNextToken()
 			self.condition()
-			self.accept(Token.THEN,
-						"then expected")
+			self.accept(Token.THEN)
 			self.sequenceOfStatements()
 		if self.token.code == Token.ELSE:
 			self.token = self.scanner.GetNextToken()
 			self.sequenceOfStatements()
-		self.accept(Token.END,
-					"end expected")
-		self.accept(Token.IF,
-					"if expected")
-		self.accept(Token.SEMICOLON,
-					"semicolon expected")
+		self.accept(Token.END)
+		self.accept(Token.IF)
+		self.accept(Token.SEMICOLON)
 
 
 	def loopStatement(self):
@@ -628,20 +613,16 @@ class Parser:
 		try:
 			if self.token.code == Token.WHILE:
 				self.iterationScheme()
-			self.accept(Token.LOOP,
-						"loop expected")
+			self.accept(Token.LOOP)
 		except RuntimeError as e:
 			print("continue parsing from sequence of statements of loop statement\n")
 
 		self.sequenceOfStatements()
 
 		try:
-			self.accept(Token.END,
-						"end expected")
-			self.accept(Token.LOOP,
-						"loop expected")
-			self.accept(Token.SEMICOLON,
-						"semicolon expected")
+			self.accept(Token.END)
+			self.accept(Token.LOOP)
+			self.accept(Token.SEMICOLON)
 		except RuntimeError as e:
 			print("stop parsing loop statement\n")
 
@@ -652,8 +633,7 @@ class Parser:
 		
 		iterationScheme = "while" condition
 		"""
-		self.accept(Token.WHILE,
-					"while expected")
+		self.accept(Token.WHILE)
 		self.condition()
 
 
@@ -663,13 +643,11 @@ class Parser:
 		
 		exitStatement = "exit" [ "when" condition ] ";"
 		"""
-		self.accept(Token.EXIT,
-					"exit expected")
+		self.accept(Token.EXIT)
 		if self.token.code == Token.WHEN:
 			self.token = self.scanner.GetNextToken()
 			self.condition()
-		self.accept(Token.SEMICOLON,
-					"semicolon expected")
+		self.accept(Token.SEMICOLON)
 
 
 	def procedureCallStatement(self):
@@ -680,8 +658,7 @@ class Parser:
 		"""
 		if self.token.code == Token.PARENTHESIS_OPEN:
 			self.actualParameterPart()
-		self.accept(Token.SEMICOLON,
-					"semicolon expected")
+		self.accept(Token.SEMICOLON)
 
 
 	def printProcedureCallStatement(self):
@@ -695,8 +672,7 @@ class Parser:
 				# else:
 					print(param, end=' ')
 		print()
-		self.accept(Token.SEMICOLON,
-					"semicolon expected")
+		self.accept(Token.SEMICOLON)
 
 
 	def actualParameterPart(self):
@@ -705,8 +681,7 @@ class Parser:
 		
 		actualParameterPart = "(" expression { "," expression } ")"
 		"""
-		self.accept(Token.PARENTHESIS_OPEN,
-					"open parenthesis expected")
+		self.accept(Token.PARENTHESIS_OPEN)
 		ret = []
 		# input("t")
 		ret.append(self.expression())
@@ -714,8 +689,7 @@ class Parser:
 		while self.token.code == Token.COMMA:
 			self.token = self.scanner.GetNextToken()
 			ret.append(self.expression())
-		self.accept(Token.PARENTHESIS_CLOSE,
-					"close parenthesis expected")
+		self.accept(Token.PARENTHESIS_CLOSE)
 		return ret
 
 
@@ -875,8 +849,7 @@ class Parser:
 		elif self.token.code == Token.PARENTHESIS_OPEN:
 			self.token = self.scanner.GetNextToken()
 			value = self.expression()
-			self.accept(Token.PARENTHESIS_CLOSE,
-						"\')\' expected")
+			self.accept(Token.PARENTHESIS_CLOSE)
 		else:
 			self.fatalError("expected either a numeric literal, an identifier, or an opening parenthesis but " + 
 				str(self.token) + " was detected")
@@ -892,8 +865,7 @@ class Parser:
 		"""
 		entry = self.table.findSymbol(self.token.value)
 		# print("running name")
-		self.accept(Token.ID,
-					"identifier expected")
+		self.accept(Token.ID)
 		if (entry == None or entry.role != SymbolEntry.PROC) and self.token.code == Token.PARENTHESIS_OPEN:	# TODO: resolve comment: indexedComponent
 			# print("running indexedComponent")
 			self.indexedComponent()
@@ -906,14 +878,12 @@ class Parser:
 		
 		indexedComponent = "(" expression { "," expression } ")"
 		"""
-		self.accept(Token.PARENTHESIS_OPEN,
-					"\'(\' expected")
+		self.accept(Token.PARENTHESIS_OPEN)
 		self.expression()
 		while self.token.code == Token.COMMA:
 			self.token = self.scanner.GetNextToken()
 			self.expression()
-		self.accept(Token.PARENTHESIS_CLOSE,
-					"\')\' expected")
+		self.accept(Token.PARENTHESIS_CLOSE)
 
 		# TODO: resolve the following comment
 		#모든 메소드를 호출하면 GetNextToken 이 자동으로 됨
