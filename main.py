@@ -6,23 +6,23 @@ from Parser import Parser
 
 def main():
 	# submission code
-	# FILE_NAME = input("Input the file name: ")
-	# chario = Chario(FILE_NAME+name)	# link the input source file
-	# scanner = Scanner(chario)
-	# parser = Parser(chario, scanner)
-	# # do syntax analysis
-	# parser.subprogramBody()
+	FILE_NAME = input("Input the file name: ")
+	chario = Chario(FILE_NAME)	# link the input source file
+	scanner = Scanner(chario)
+	parser = Parser(chario, scanner)
+	# do syntax analysis
+	parser.subprogramBody()
 	
 	# DEV code
-	FILE_NAME = "./sample_input/"	
+	# FILE_NAME = "./sample_input/"	
 	# for name in ("testcase1.ada", "testcase2.ada", "testcase3.ada")[0:3]:
-	for name in ["sample_edit.ada"]:
-		print(name)
-		chario = Chario(FILE_NAME+name)	# link the input source file
-		scanner = Scanner(chario)
-		parser = Parser(chario, scanner)
-		# do syntax analysis
-		parser.subprogramBody()
+	# for name in ["sample_edit.ada"]:
+	# 	print(name)
+	# 	chario = Chario(FILE_NAME+name)	# link the input source file
+	# 	scanner = Scanner(chario)
+	# 	parser = Parser(chario, scanner)
+	# 	# do syntax analysis
+	# 	parser.subprogramBody()
 	# print("DONE")
 		
 		# while True:
