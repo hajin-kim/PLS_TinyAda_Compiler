@@ -5,6 +5,7 @@
 Yonsei University (South Korea)  
 Fall 2020  
 CSI3103-01 Programming Language Structures  
+Went public on Dec. 5, 2020  
 
 
 
