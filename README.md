@@ -10,9 +10,9 @@ Went public on Dec. 5, 2020
 
 
 ### Developers
-[Hajin Kim](https://github.com/hajin-kim)  
-[H. J.](https://github.com/Ownfos)  
-[S. L.](https://github.com/hunny7434)  
+[Ownfos](https://github.com/Ownfos)  
+[Hajin-Kim](https://github.com/hajin-kim)  
+[hunny7434](https://github.com/hunny7434)  
 
 
 
